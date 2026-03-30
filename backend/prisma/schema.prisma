@@ -1,0 +1,155 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// FAK-CRM  —  First Aid Kit Management System
+// Prisma 7 schema  (connection URL lives in prisma.config.ts)
+// ─────────────────────────────────────────────────────────────────────────────
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ── Enums ─────────────────────────────────────────────────────────────────────
+
+enum Role {
+  ADMIN
+  CHECKER
+}
+
+// ── User ──────────────────────────────────────────────────────────────────────
+// Admins manage everything; Checkers perform kit inspections.
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String   // bcrypt-hashed
+  fullName  String
+  role      Role     @default(CHECKER)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  assignedKits      Kit[]            @relation("KitAssignees")
+  inspectionLogs    InspectionLog[]
+  incidentReports   IncidentReport[] @relation("IncidentReporter")
+
+  @@map("users")
+}
+
+// ── Kit ───────────────────────────────────────────────────────────────────────
+// A physical first-aid kit box/bag assigned to a location and a user.
+
+model Kit {
+  id           String   @id @default(uuid())
+  name         String
+  description  String?
+  location     String?  // Physical location, e.g. "Building A – Floor 2"
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  assignees        User[]           @relation("KitAssignees")
+  kitItems         KitItem[]
+  inspectionLogs   InspectionLog[]
+  incidentReports  IncidentReport[]
+
+  @@map("kits")
+}
+
+// ── KitItem ───────────────────────────────────────────────────────────────────
+// An item belonging directly to a kit — no shared catalog required.
+
+model KitItem {
+  id              String    @id @default(uuid())
+  name            String    // e.g. "Surgical Mask"
+  category        String?   // e.g. "Personal Protection"
+  unit            String?   @default("pcs")
+  quantity        Int       @default(0)
+  locationInKit   String?
+  expirationDate  DateTime?
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // isValid is a VIRTUAL field — computed in application code:
+  //   isValid = expirationDate == null || expirationDate > now()
+
+  // Relations
+  kitId          String
+  kit            Kit                  @relation(fields: [kitId], references: [id], onDelete: Cascade)
+  logItems       InspectionLogItem[]
+  incidentItems  IncidentReportItem[]
+
+  @@map("kit_items")
+}
+
+// ── InspectionLog ─────────────────────────────────────────────────────────────
+// One record per inspection session (a checker rounds a specific kit).
+
+model InspectionLog {
+  id          String   @id @default(uuid())
+  notes       String?  // Overall inspector notes
+  createdAt   DateTime @default(now())  // Timestamp of the inspection
+
+  // Relations
+  kitId         String
+  kit           Kit    @relation(fields: [kitId], references: [id], onDelete: Cascade)
+  inspectedById String
+  inspectedBy   User   @relation(fields: [inspectedById], references: [id], onDelete: Restrict)
+  items         InspectionLogItem[]
+
+  @@map("inspection_logs")
+}
+
+// ── IncidentReport ────────────────────────────────────────────────────────────
+// Tracks items consumed during an incident (first-aid use, etc.)
+
+model IncidentReport {
+  id          String   @id @default(uuid())
+  description String?
+  createdAt   DateTime @default(now())
+
+  kitId        String
+  kit          Kit                  @relation(fields: [kitId], references: [id], onDelete: Cascade)
+  reportedById String
+  reportedBy   User                 @relation("IncidentReporter", fields: [reportedById], references: [id], onDelete: Restrict)
+  items        IncidentReportItem[]
+
+  @@map("incident_reports")
+}
+
+model IncidentReportItem {
+  id           String  @id @default(uuid())
+  quantityUsed Int
+  notes        String?
+
+  incidentReportId String
+  incidentReport   IncidentReport @relation(fields: [incidentReportId], references: [id], onDelete: Cascade)
+  kitItemId        String
+  kitItem          KitItem        @relation(fields: [kitItemId], references: [id], onDelete: Restrict)
+
+  @@map("incident_report_items")
+}
+
+// ── InspectionLogItem ─────────────────────────────────────────────────────────
+// Snapshot of a single KitItem at the moment it was inspected.
+// Preserves the historical record even if KitItem is later updated.
+
+model InspectionLogItem {
+  id                  String    @id @default(uuid())
+  quantityFound       Int
+  expirationDateFound DateTime?
+  notes               String?
+
+  // Relations
+  inspectionLogId String
+  inspectionLog   InspectionLog @relation(fields: [inspectionLogId], references: [id], onDelete: Cascade)
+  kitItemId       String
+  kitItem         KitItem       @relation(fields: [kitItemId], references: [id], onDelete: Restrict)
+
+  @@map("inspection_log_items")
+}
