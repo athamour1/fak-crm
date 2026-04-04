@@ -1,0 +1,334 @@
+<template>
+  <q-page padding class="inspection-page">
+
+    <!-- ── Header ─────────────────────────────────────────────────────────────── -->
+    <div class="row items-center q-mb-md">
+      <q-btn flat round dense icon="arrow_back" :to="{ name: 'my-kit-detail', params: { id: kitId } }" class="q-mr-sm" />
+      <div class="col">
+        <div class="text-h5" v-if="kit">{{ kit.name }}</div>
+        <q-skeleton v-else type="text" width="180px" />
+        <div class="text-caption text-grey-6" v-if="kit">
+          <q-icon name="location_on" size="14px" />
+          {{ kit.location || 'No location set' }}
+          &nbsp;·&nbsp;{{ kit.kitItems.length }} item(s)
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Expiry warning banner ─────────────────────────────────────────────── -->
+    <q-banner
+      v-if="!loading && expiredItemCount > 0"
+      rounded
+      :class="[$q.dark.isActive ? 'bg-red-9 text-red-2' : 'bg-red-1 text-red-9', 'q-mb-md']"
+    >
+      <template #avatar><q-icon name="dangerous" /></template>
+      <strong>{{ expiredItemCount }}</strong> item{{ expiredItemCount > 1 ? 's' : '' }} in this kit
+      {{ expiredItemCount > 1 ? 'are' : 'is' }} expired — please replace before use.
+    </q-banner>
+
+    <!-- ── Progress & summary bar ─────────────────────────────────────────────── -->
+    <q-card flat bordered :class="['q-mb-md', $q.dark.isActive ? 'bg-blue-10' : 'bg-blue-1']" v-if="kit && !loading">
+      <q-card-section class="q-py-sm row items-center q-gutter-md">
+        <div class="text-caption text-blue-9">
+          <strong>{{ checkedCount }}</strong> / {{ items.length }} items reviewed
+        </div>
+        <q-linear-progress
+          :value="items.length ? checkedCount / items.length : 0"
+          color="primary" class="col"
+          style="height: 8px; border-radius: 4px;"
+        />
+        <div class="text-caption text-blue-9">
+          {{ Math.round(items.length ? (checkedCount / items.length) * 100 : 0) }}%
+        </div>
+      </q-card-section>
+    </q-card>
+
+    <!-- ── Item list ──────────────────────────────────────────────────────────── -->
+    <div v-if="loading" class="q-gutter-md">
+      <q-card v-for="n in 4" :key="n" flat bordered>
+        <q-card-section>
+          <q-skeleton type="text" width="50%" class="q-mb-sm" />
+          <q-skeleton type="rect" height="80px" />
+        </q-card-section>
+      </q-card>
+    </div>
+
+    <div v-else class="q-gutter-md">
+      <q-card
+        v-for="item in items"
+        :key="item.kitItemId"
+        flat bordered
+        :class="[
+          'item-card',
+          item.checked ? 'item-card--done' : '',
+          !item.currentIsValid ? 'item-card--expired' : '',
+        ]"
+      >
+        <q-card-section class="q-pb-sm">
+          <!-- Item name + category + status badge -->
+          <div class="row items-start no-wrap">
+            <div class="col">
+              <div class="text-subtitle2 text-weight-bold">
+                {{ item.name }}
+              </div>
+              <div class="text-caption text-grey-6">{{ item.category }}</div>
+            </div>
+            <div class="row q-gutter-xs items-center">
+              <q-badge
+                :color="item.currentIsValid ? 'positive' : 'negative'"
+                :label="item.currentIsValid ? 'Valid' : 'Expired'"
+              />
+              <q-icon
+                v-if="item.checked"
+                name="check_circle"
+                color="positive"
+                size="20px"
+              />
+            </div>
+          </div>
+
+          <!-- Previous values hint -->
+          <div class="row q-gutter-md q-mt-xs text-caption text-grey-7">
+            <span>
+              <q-icon name="inventory_2" size="12px" />
+              Previous qty: <strong>{{ item.previousQuantity }}</strong>
+            </span>
+            <span v-if="item.previousExpiry">
+              <q-icon name="event" size="12px" />
+              Previous expiry: <strong>{{ formatDate(item.previousExpiry) }}</strong>
+            </span>
+          </div>
+        </q-card-section>
+
+        <q-separator />
+
+        <!-- ── Editable fields ────────────────────────────────────────────────── -->
+        <q-card-section class="q-pt-sm">
+          <div class="row q-col-gutter-sm">
+            <!-- Quantity found -->
+            <div class="col-12 col-sm-4">
+              <q-input
+                v-model.number="item.quantityFound"
+                label="Quantity Found"
+                type="number"
+                outlined
+                dense
+                min="0"
+                :rules="[(v) => v >= 0 || 'Must be ≥ 0']"
+                @update:model-value="markChecked(item)"
+              >
+                <template #prepend>
+                  <q-icon name="numbers" />
+                </template>
+              </q-input>
+            </div>
+
+            <!-- Expiration date found -->
+            <div class="col-12 col-sm-4">
+              <q-input
+                v-model="item.expirationDateFound"
+                label="Expiration Date"
+                outlined
+                dense
+                type="date"
+                clearable
+                @update:model-value="markChecked(item)"
+              >
+                <template #prepend>
+                  <q-icon name="event" />
+                </template>
+              </q-input>
+            </div>
+
+            <!-- Notes -->
+            <div class="col-12 col-sm-4">
+              <q-input
+                v-model="item.notes"
+                label="Notes"
+                outlined
+                dense
+                clearable
+                @update:model-value="markChecked(item)"
+              >
+                <template #prepend>
+                  <q-icon name="notes" />
+                </template>
+              </q-input>
+            </div>
+          </div>
+        </q-card-section>
+      </q-card>
+    </div>
+
+    <!-- ── Overall Notes + Submit ─────────────────────────────────────────────── -->
+    <q-card v-if="!loading && kit" flat bordered class="q-mt-md">
+      <q-card-section>
+        <q-input
+          v-model="overallNotes"
+          label="Overall Inspection Notes (optional)"
+          outlined
+          type="textarea"
+          autogrow
+          :rows="2"
+        >
+          <template #prepend><q-icon name="edit_note" /></template>
+        </q-input>
+      </q-card-section>
+      <q-card-actions class="q-px-md q-pb-md">
+        <q-btn flat label="Cancel" :to="{ name: 'my-kit-detail', params: { id: kitId } }" />
+        <q-space />
+        <q-btn
+          unelevated color="primary" size="md"
+          icon="send" label="Submit Inspection"
+          :loading="submitting"
+          :disable="!items.length"
+          @click="submitInspection"
+        />
+      </q-card-actions>
+    </q-card>
+
+    <!-- ── Success overlay ─────────────────────────────────────────────────────── -->
+    <q-dialog v-model="successDialog" persistent>
+      <q-card class="text-center q-pa-lg" style="min-width: 300px">
+        <q-icon name="check_circle" color="positive" size="64px" class="q-mb-md" />
+        <div class="text-h6 q-mb-xs">Inspection Submitted!</div>
+        <div class="text-body2 text-grey-7 q-mb-lg">
+          Your inspection for <strong>{{ kit?.name }}</strong> has been saved.
+        </div>
+        <q-btn unelevated color="primary" label="Back to Kit" :to="{ name: 'my-kit-detail', params: { id: kitId } }" />
+      </q-card>
+    </q-dialog>
+
+  </q-page>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+import { useQuasar, date } from 'quasar';
+
+const $q = useQuasar();
+import { kitsApi, inspectionsApi, type Kit } from 'src/services/api';
+import { useNotify } from 'src/composables/useNotify';
+
+const route = useRoute();
+const notify = useNotify();
+const kitId = route.params.id as string;
+
+const kit = ref<Kit | null>(null);
+const loading = ref(false);
+const submitting = ref(false);
+const overallNotes = ref('');
+const successDialog = ref(false);
+
+// ── Per-item inspection state ────────────────────────────────────────────────
+
+interface ItemState {
+  kitItemId: string;
+  name: string;
+  category: string;
+  previousQuantity: number;
+  previousExpiry: string | null;
+  currentIsValid: boolean;
+  // editable fields
+  quantityFound: number;
+  expirationDateFound: string;
+  notes: string;
+  checked: boolean; // user has touched at least one field
+}
+
+const items = ref<ItemState[]>([]);
+
+const checkedCount = computed(() => items.value.filter((i) => i.checked).length);
+const expiredItemCount = computed(() => items.value.filter((i) => !i.currentIsValid).length);
+
+function buildItems(k: Kit) {
+  items.value = k.kitItems.map((ki) => ({
+    kitItemId: ki.id,
+    name: ki.name,
+    category: ki.category ?? '',
+    previousQuantity: ki.quantity,
+    previousExpiry: ki.expirationDate ?? null,
+    currentIsValid: ki.isValid,
+    quantityFound: ki.quantity,
+    expirationDateFound: ki.expirationDate ? ki.expirationDate.slice(0, 10) : '',
+    notes: ki.notes ?? '',
+    checked: false,
+  }));
+}
+
+function markChecked(item: ItemState) {
+  item.checked = true;
+}
+
+function formatDate(iso: string) {
+  return date.formatDate(iso, 'DD MMM YYYY');
+}
+
+// ── Submit ───────────────────────────────────────────────────────────────────
+
+async function submitInspection() {
+  submitting.value = true;
+  try {
+    await inspectionsApi.submit({
+      kitId,
+      ...(overallNotes.value && { notes: overallNotes.value }),
+      items: items.value.map((i) => ({
+        kitItemId: i.kitItemId,
+        quantityFound: i.quantityFound,
+        expirationDateFound: i.expirationDateFound || null,
+        ...(i.notes && { notes: i.notes }),
+      })),
+    });
+    successDialog.value = true;
+  } catch (e) {
+    notify.error(e, 'Failed to submit inspection');
+  } finally {
+    submitting.value = false;
+  }
+}
+
+// ── Load ─────────────────────────────────────────────────────────────────────
+
+onMounted(async () => {
+  loading.value = true;
+  try {
+    const { data } = await kitsApi.get(kitId);
+    kit.value = data;
+    buildItems(data);
+  } catch (e) {
+    notify.error(e, 'Failed to load kit');
+  } finally {
+    loading.value = false;
+  }
+});
+</script>
+
+<style scoped lang="css">
+.inspection-page {
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.item-card {
+  border-radius: 10px;
+  transition: border-color 0.2s;
+}
+
+.item-card--done {
+  border-color: #21ba45 !important;
+  background: #f9fff9;
+}
+.item-card--expired {
+  border-color: #c10015 !important;
+  background: #fff5f5;
+}
+.body--dark .item-card--done {
+  border-color: #21ba45 !important;
+  background: #0a1f0a;
+}
+.body--dark .item-card--expired {
+  border-color: #c10015 !important;
+  background: #1f0a0a;
+}
+</style>
