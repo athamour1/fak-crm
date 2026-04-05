@@ -1,0 +1,24 @@
+# ── Frontend Development Dockerfile ─────────────────────────────────────────────
+# Runs Quasar CLI dev server with HMR bound to 0.0.0.0 so it's reachable
+# from the Docker host.  Source is mounted via docker-compose volume.
+
+FROM node:22-alpine
+
+WORKDIR /app
+
+# Install Quasar CLI globally
+RUN npm install -g @quasar/cli
+
+# Install project dependencies (cached layer)
+COPY package*.json ./
+RUN npm ci
+
+# Config files — source mounted at runtime
+COPY quasar.config.* ./
+COPY tsconfig*.json ./
+COPY index.html ./
+
+EXPOSE 9000
+
+# Start Quasar dev server on all interfaces
+CMD ["quasar", "dev", "--hostname", "0.0.0.0", "--port", "9000"]
