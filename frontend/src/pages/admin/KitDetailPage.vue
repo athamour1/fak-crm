@@ -2,28 +2,33 @@
   <q-page padding>
 
     <!-- ── Header ────────────────────────────────────────────────────────────── -->
-    <div class="row items-center q-mb-md">
-      <q-btn flat round dense icon="arrow_back" :to="authStore.isAdmin ? '/admin/kits' : '/my-kits'" class="q-mr-sm" />
-      <div>
-        <div class="text-h5" v-if="kit">{{ kit.name }}</div>
-        <q-skeleton v-else type="text" width="200px" />
-        <div class="text-caption text-grey-6" v-if="kit">
-          <q-icon name="location_on" size="14px" />
-          {{ kit.location || 'No location set' }}
-          &nbsp;·&nbsp;
-          <q-icon name="person" size="14px" />
-          <span v-if="kit.assignees.length">{{ kit.assignees.map(a => a.fullName).join(', ') }}</span>
-          <span v-else>Unassigned</span>
+    <div class="q-mb-md">
+      <!-- Title row -->
+      <div class="row items-center q-mb-sm">
+        <q-btn flat round dense icon="arrow_back" :to="authStore.isAdmin ? '/admin/kits' : '/my-kits'" class="q-mr-sm" />
+        <div>
+          <div class="text-h5" v-if="kit">{{ kit.name }}</div>
+          <q-skeleton v-else type="text" width="200px" />
+          <div class="text-caption text-grey-6" v-if="kit">
+            <q-icon name="location_on" size="14px" />
+            {{ kit.location || 'No location set' }}
+            &nbsp;·&nbsp;
+            <q-icon name="person" size="14px" />
+            <span v-if="kit.assignees.length">{{ kit.assignees.map(a => a.fullName).join(', ') }}</span>
+            <span v-else>Unassigned</span>
+          </div>
         </div>
       </div>
-      <q-space />
-      <q-btn
-        v-if="authStore.isChecker"
-        color="teal" icon="fact_check" label="Start Inspection" unelevated class="q-mr-sm"
-        :to="{ name: 'kit-inspect', params: { id: kitId } }"
-      />
-      <q-btn color="secondary" icon="upload_file" label="Import CSV" unelevated class="q-mr-sm" @click="openImport" />
-      <q-btn color="primary" icon="add" label="Add Item" unelevated @click="openAddItem" />
+      <!-- Action buttons row -->
+      <div class="row q-gutter-sm">
+        <q-btn
+          v-if="authStore.isChecker"
+          color="teal" icon="fact_check" label="Start Inspection" unelevated
+          :to="{ name: 'kit-inspect', params: { id: kitId } }"
+        />
+        <q-btn color="secondary" icon="upload_file" label="Import CSV" unelevated @click="openImport" />
+        <q-btn color="primary" icon="add" label="Add Item" unelevated @click="openAddItem" />
+      </div>
     </div>
 
     <!-- ── Expiry alert banner ───────────────────────────────────────────────── -->

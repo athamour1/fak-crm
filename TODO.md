@@ -13,4 +13,4 @@
 - [X] Add dark mode
 - [X] Change primary color to Red
 - [X] Add profile settings so the user can change his password or email
-- [ ] - [X] Make this app a pwa
+- [X] Make this app a pwa
