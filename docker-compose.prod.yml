@@ -1,14 +1,22 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # FAK-CRM — Production Docker Compose
 #
+# Uses pre-built images published to GitHub Container Registry by release.sh.
+# Images: ghcr.io/athamour1/fak-crm/backend  (tagged :latest or :vX.Y.Z)
+#         ghcr.io/athamour1/fak-crm/frontend  (tagged :latest or :vX.Y.Z)
+#
 # Services:
 #   db       — PostgreSQL 16 (persisted via named volume, no host port exposed)
-#   backend  — NestJS compiled, runs migrations on startup
-#   frontend — Quasar SPA served by nginx, proxies /api → backend
+#   backend  — NestJS compiled image from GHCR, runs migrations on startup
+#   frontend — Quasar SPA + nginx image from GHCR, proxies /api → backend
 #
 # Before first run:
 #   1. Copy .env.prod.example → .env.prod and fill in secrets
-#   2. docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
+#   2. Optionally set IMAGE_TAG in .env.prod (default: latest)
+#   3. docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
+#
+# To deploy a specific release:
+#   IMAGE_TAG=v1.2.0 docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
 #
 # The --env-file flag is required so Compose can interpolate ${VAR} placeholders.
 # The env_file key on each service injects those same vars into the containers.
@@ -42,9 +50,7 @@ services:
 
   # ── NestJS Backend ────────────────────────────────────────────────────────
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: ghcr.io/athamour1/fak-crm/backend:${IMAGE_TAG:-latest}
     container_name: fakcrm-backend
     restart: always
     depends_on:
@@ -67,9 +73,7 @@ services:
 
   # ── Nginx + Quasar SPA ────────────────────────────────────────────────────
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    image: ghcr.io/athamour1/fak-crm/frontend:${IMAGE_TAG:-latest}
     container_name: fakcrm-frontend
     restart: always
     depends_on:

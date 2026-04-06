@@ -99,18 +99,38 @@ docker compose -f docker-compose.dev.yml up --build
 
 ### Production
 
+Pre-built images are published to GitHub Container Registry by `release.sh`:
+- `ghcr.io/athamour1/fak-crm/backend`
+- `ghcr.io/athamour1/fak-crm/frontend`
+
 1. Copy the example env file and fill in secrets:
    ```bash
    cp .env.prod.example .env.prod
    # edit .env.prod
    ```
 
-2. Start:
+2. Pull and start (uses the `latest` tag by default):
    ```bash
-   docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
+   docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
+   ```
+
+3. To deploy a specific release:
+   ```bash
+   IMAGE_TAG=v1.2.0 docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
    ```
 
 The app is available on port **80**. Nginx serves the Quasar SPA and proxies `/api` to the NestJS backend. The database port is not exposed publicly.
+
+#### Releasing a new version
+
+```bash
+./release.sh
+```
+
+The script will:
+1. Prompt for a semver version (e.g. `1.2.0`)
+2. Build and push `backend` and `frontend` Docker images to GHCR (tagged `:vX.Y.Z` and `:latest`)
+3. Create an annotated Git tag and a GitHub release with auto-generated notes
 
 #### Required `.env.prod` variables
 
@@ -128,6 +148,9 @@ API_URL=/api
 SEED_ADMIN_EMAIL=admin@your-domain.com
 SEED_ADMIN_PASSWORD=StrongPassword1!
 SEED_ADMIN_NAME=System Admin
+
+# Optional: pin to a specific release tag (default: latest)
+IMAGE_TAG=latest
 ```
 
 ---

@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FAK-CRM — First Aid Kit Management System</title>
+  <meta name="description" content="A full-stack web application for managing first-aid kits across your organisation. Track inventory, schedule inspections, QR code access, and real-time incident reporting." />
+  <meta name="keywords" content="first aid kit, management, CRM, inspection, QR code, inventory, healthcare, safety" />
+  <meta name="author" content="athamour1" />
+  <meta property="og:title" content="FAK-CRM — First Aid Kit Management System" />
+  <meta property="og:description" content="Manage first-aid kits, track expiry dates, run inspections, and report incidents — all from one dashboard." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="assets/hero.png" />
+  <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ─── Navigation ─────────────────────────────────────────────────────── -->
+  <nav id="navbar" class="navbar">
+    <div class="nav-container">
+      <a href="#" class="nav-logo">
+        <span class="logo-icon material-icons-round">medical_services</span>
+        <span class="logo-text">FAK<span class="logo-accent">-CRM</span></span>
+      </a>
+      <div class="nav-links" id="nav-links">
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#how-it-works" class="nav-link">How It Works</a>
+        <a href="#tech-stack" class="nav-link">Tech Stack</a>
+        <a href="#get-started" class="nav-link">Get Started</a>
+        <a href="https://github.com/athamour1/FAK-crm" class="nav-link nav-github" target="_blank" rel="noopener">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+          GitHub
+        </a>
+      </div>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ─── Hero ───────────────────────────────────────────────────────────── -->
+  <header id="hero" class="hero">
+    <div class="hero-bg-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+    </div>
+    <div class="container hero-grid">
+      <div class="hero-content fade-up">
+        <div class="hero-badge">
+          <span class="material-icons-round">verified</span>
+          Open Source · Self-Hosted
+        </div>
+        <h1 class="hero-title">
+          First Aid Kit<br />
+          <span class="gradient-text">Management System</span>
+        </h1>
+        <p class="hero-subtitle">
+          Track inventory, schedule inspections, scan QR codes, and report incidents — 
+          all from a single, role-based dashboard. Keep your organisation safe and compliant.
+        </p>
+        <div class="hero-actions">
+          <a href="#get-started" class="btn btn-primary btn-lg">
+            <span class="material-icons-round">rocket_launch</span>
+            Get Started
+          </a>
+          <a href="https://github.com/athamour1/FAK-crm" class="btn btn-outline btn-lg" target="_blank" rel="noopener">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+            View on GitHub
+          </a>
+        </div>
+        <div class="hero-stats">
+          <div class="stat-item">
+            <span class="stat-value">2</span>
+            <span class="stat-label">User Roles</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <span class="stat-value">15+</span>
+            <span class="stat-label">API Endpoints</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <span class="stat-value">100%</span>
+            <span class="stat-label">Dockerised</span>
+          </div>
+        </div>
+      </div>
+      <div class="hero-visual fade-up delay-200">
+        <div class="hero-image-wrapper">
+          <img src="assets/hero.png" alt="FAK-CRM Dashboard illustration" class="hero-image" />
+          <div class="hero-glow"></div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-scroll-indicator">
+      <span class="material-icons-round">expand_more</span>
+    </div>
+  </header>
+
+  <!-- ─── Features ───────────────────────────────────────────────────────── -->
+  <section id="features" class="section features-section">
+    <div class="container">
+      <div class="section-header fade-up">
+        <span class="section-badge">Features</span>
+        <h2 class="section-title">Everything you need to manage<br /><span class="gradient-text">first aid kits at scale</span></h2>
+        <p class="section-subtitle">From inventory tracking to compliance reporting, FAK-CRM covers every aspect of first aid kit management.</p>
+      </div>
+
+      <div class="features-grid">
+        <!-- Feature 1 -->
+        <div class="feature-card fade-up" id="feature-kits">
+          <div class="feature-icon-wrapper">
+            <span class="material-icons-round">medical_services</span>
+          </div>
+          <h3 class="feature-title">Kit Management</h3>
+          <p class="feature-description">Create, edit, and organise kits by location. Track every item with name, category, quantity, and expiry date.</p>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="feature-card fade-up delay-100" id="feature-qr">
+          <div class="feature-icon-wrapper icon-orange">
+            <span class="material-icons-round">qr_code_2</span>
+          </div>
+          <h3 class="feature-title">QR Code Access</h3>
+          <p class="feature-description">Generate printable QR codes for each kit. Scan to instantly access contents, start inspections, or file reports.</p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="feature-card fade-up delay-200" id="feature-inspections">
+          <div class="feature-icon-wrapper icon-green">
+            <span class="material-icons-round">fact_check</span>
+          </div>
+          <h3 class="feature-title">Kit Inspections</h3>
+          <p class="feature-description">Step-through checklist inspections with quantity verification. Full audit trail maintained per kit.</p>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="feature-card fade-up" id="feature-incidents">
+          <div class="feature-icon-wrapper icon-purple">
+            <span class="material-icons-round">assignment_late</span>
+          </div>
+          <h3 class="feature-title">Incident Reports</h3>
+          <p class="feature-description">Record items consumed during incidents. Stock is automatically deducted, keeping your inventory always accurate.</p>
+        </div>
+
+        <!-- Feature 5 -->
+        <div class="feature-card fade-up delay-100" id="feature-roles">
+          <div class="feature-icon-wrapper icon-teal">
+            <span class="material-icons-round">admin_panel_settings</span>
+          </div>
+          <h3 class="feature-title">Role-Based Access</h3>
+          <p class="feature-description">Admin and Checker roles with fine-grained permissions. Checkers only see kits assigned to them.</p>
+        </div>
+
+        <!-- Feature 6 -->
+        <div class="feature-card fade-up delay-200" id="feature-expiry">
+          <div class="feature-icon-wrapper icon-amber">
+            <span class="material-icons-round">event_busy</span>
+          </div>
+          <h3 class="feature-title">Expiry Tracking</h3>
+          <p class="feature-description">Items flagged as expired or expiring within 30 days with colour-coded alerts on the dashboard.</p>
+        </div>
+
+        <!-- Feature 7 -->
+        <div class="feature-card fade-up" id="feature-csv">
+          <div class="feature-icon-wrapper icon-indigo">
+            <span class="material-icons-round">upload_file</span>
+          </div>
+          <h3 class="feature-title">CSV Import</h3>
+          <p class="feature-description">Bulk-import kit items from standardised CSV files. Get up and running in minutes instead of hours.</p>
+        </div>
+
+        <!-- Feature 8 -->
+        <div class="feature-card fade-up delay-100" id="feature-dark">
+          <div class="feature-icon-wrapper icon-slate">
+            <span class="material-icons-round">dark_mode</span>
+          </div>
+          <h3 class="feature-title">Dark Mode</h3>
+          <p class="feature-description">Full dark mode support toggled from the header. Preference persisted across sessions.</p>
+        </div>
+
+        <!-- Feature 9 -->
+        <div class="feature-card fade-up delay-200" id="feature-responsive">
+          <div class="feature-icon-wrapper icon-rose">
+            <span class="material-icons-round">devices</span>
+          </div>
+          <h3 class="feature-title">Responsive UI</h3>
+          <p class="feature-description">Works beautifully on desktop and mobile. Inspect kits on the go from any device.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── How It Works ───────────────────────────────────────────────────── -->
+  <section id="how-it-works" class="section how-section">
+    <div class="container">
+      <div class="section-header fade-up">
+        <span class="section-badge">Workflow</span>
+        <h2 class="section-title">How it works</h2>
+        <p class="section-subtitle">A streamlined workflow for admins and checkers alike.</p>
+      </div>
+
+      <div class="timeline">
+        <div class="timeline-item fade-up" id="step-1">
+          <div class="timeline-number">1</div>
+          <div class="timeline-content">
+            <div class="timeline-icon-bg">
+              <span class="material-icons-round">add_box</span>
+            </div>
+            <h3>Set Up Kits</h3>
+            <p>Admin creates kits with location info and adds items — manually or via CSV import. Assign checkers to each kit.</p>
+          </div>
+        </div>
+
+        <div class="timeline-item fade-up delay-100" id="step-2">
+          <div class="timeline-number">2</div>
+          <div class="timeline-content">
+            <div class="timeline-icon-bg icon-orange">
+              <span class="material-icons-round">qr_code_scanner</span>
+            </div>
+            <h3>Print QR Codes</h3>
+            <p>Generate and download QR codes for each kit. Stick them on the physical kit for instant on-site access.</p>
+          </div>
+        </div>
+
+        <div class="timeline-item fade-up delay-200" id="step-3">
+          <div class="timeline-number">3</div>
+          <div class="timeline-content">
+            <div class="timeline-icon-bg icon-green">
+              <span class="material-icons-round">checklist</span>
+            </div>
+            <h3>Run Inspections</h3>
+            <p>Checkers scan the QR code and step through every item, recording quantities and notes. Inspections are logged automatically.</p>
+          </div>
+        </div>
+
+        <div class="timeline-item fade-up delay-300" id="step-4">
+          <div class="timeline-number">4</div>
+          <div class="timeline-content">
+            <div class="timeline-icon-bg icon-purple">
+              <span class="material-icons-round">monitor_heart</span>
+            </div>
+            <h3>Monitor & Report</h3>
+            <p>The admin dashboard shows expiry alerts, recent inspections, and incident reports. Everything in one place.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Tech Stack ─────────────────────────────────────────────────────── -->
+  <section id="tech-stack" class="section tech-section">
+    <div class="container">
+      <div class="section-header fade-up">
+        <span class="section-badge">Technology</span>
+        <h2 class="section-title">Built with modern tools</h2>
+        <p class="section-subtitle">A battle-tested stack that's easy to deploy and maintain.</p>
+      </div>
+
+      <div class="tech-grid">
+        <div class="tech-card fade-up" id="tech-vue">
+          <div class="tech-logo">
+            <img src="https://cdn.simpleicons.org/vuedotjs/42B883" width="48" height="48" alt="Vue.js" />
+          </div>
+          <h4>Vue 3</h4>
+          <p>Composition API</p>
+        </div>
+        <div class="tech-card fade-up delay-100" id="tech-quasar">
+          <div class="tech-logo">
+            <img src="https://cdn.simpleicons.org/quasar/1976D2" width="48" height="48" alt="Quasar" />
+          </div>
+          <h4>Quasar v2</h4>
+          <p>UI Framework</p>
+        </div>
+        <div class="tech-card fade-up delay-200" id="tech-nest">
+          <div class="tech-logo">
+            <img src="https://cdn.simpleicons.org/nestjs/E0234E" width="48" height="48" alt="NestJS" />
+          </div>
+          <h4>NestJS v11</h4>
+          <p>Backend API</p>
+        </div>
+        <div class="tech-card fade-up" id="tech-prisma">
+          <div class="tech-logo">
+            <img src="https://cdn.simpleicons.org/prisma/2D3748" width="48" height="48" alt="Prisma" />
+          </div>
+          <h4>Prisma 7</h4>
+          <p>ORM</p>
+        </div>
+        <div class="tech-card fade-up delay-100" id="tech-postgres">
+          <div class="tech-logo">
+            <img src="https://cdn.simpleicons.org/postgresql/336791" width="48" height="48" alt="PostgreSQL" />
+          </div>
+          <h4>PostgreSQL 16</h4>
+          <p>Database</p>
+        </div>
+        <div class="tech-card fade-up delay-200" id="tech-docker">
+          <div class="tech-logo">
+            <img src="https://cdn.simpleicons.org/docker/2496ED" width="48" height="48" alt="Docker" />
+          </div>
+          <h4>Docker</h4>
+          <p>Containerised</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Data Model ─────────────────────────────────────────────────────── -->
+  <section class="section model-section">
+    <div class="container">
+      <div class="section-header fade-up">
+        <span class="section-badge">Architecture</span>
+        <h2 class="section-title">Data model overview</h2>
+        <p class="section-subtitle">Clean, normalised schema designed for auditability and real-time stock tracking.</p>
+      </div>
+
+      <div class="model-diagram fade-up">
+        <pre class="code-block"><code>User ──&lt; KitAssignees &gt;── Kit ──&lt; KitItem
+                           │         │
+                           │         ├──&lt; InspectionLogItem &gt;── InspectionLog &gt;── User
+                           │         └──&lt; IncidentReportItem &gt;── IncidentReport &gt;── User
+                           ├──&lt; InspectionLog
+                           └──&lt; IncidentReport</code></pre>
+        <div class="model-cards">
+          <div class="model-card fade-up">
+            <span class="material-icons-round">person</span>
+            <strong>User</strong>
+            <p>Admin or Checker, many-to-many with kits</p>
+          </div>
+          <div class="model-card fade-up delay-100">
+            <span class="material-icons-round">medical_services</span>
+            <strong>Kit</strong>
+            <p>Physical first-aid kit at a location</p>
+          </div>
+          <div class="model-card fade-up delay-200">
+            <span class="material-icons-round">inventory_2</span>
+            <strong>KitItem</strong>
+            <p>Item in a kit with expiry tracking</p>
+          </div>
+          <div class="model-card fade-up delay-300">
+            <span class="material-icons-round">fact_check</span>
+            <strong>InspectionLog</strong>
+            <p>Per-session inspection with item snapshots</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Get Started ────────────────────────────────────────────────────── -->
+  <section id="get-started" class="section start-section">
+    <div class="container">
+      <div class="section-header fade-up">
+        <span class="section-badge">Quick Start</span>
+        <h2 class="section-title">Up and running in minutes</h2>
+        <p class="section-subtitle">Just Docker and Docker Compose. Nothing else to install.</p>
+      </div>
+
+      <div class="start-grid">
+        <div class="start-card fade-up" id="start-dev">
+          <div class="start-card-header">
+            <span class="material-icons-round">code</span>
+            <h3>Development</h3>
+          </div>
+          <pre class="code-block"><code><span class="code-comment"># Clone the repo</span>
+git clone https://github.com/athamour1/FAK-crm.git
+cd FAK-crm
+
+<span class="code-comment"># Start everything</span>
+docker compose -f docker-compose.dev.yml up --build</code></pre>
+          <div class="start-card-footer">
+            <div class="port-badge">
+              <span class="material-icons-round">language</span>
+              Frontend → <strong>localhost:9000</strong>
+            </div>
+            <div class="port-badge">
+              <span class="material-icons-round">api</span>
+              Backend → <strong>localhost:3000/api</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="start-card fade-up delay-200" id="start-prod">
+          <div class="start-card-header">
+            <span class="material-icons-round">rocket_launch</span>
+            <h3>Production</h3>
+          </div>
+          <pre class="code-block"><code><span class="code-comment"># Copy env and configure secrets</span>
+cp .env.prod.example .env.prod
+
+<span class="code-comment"># Pull pre-built images and start</span>
+docker compose -f docker-compose.prod.yml \
+  --env-file .env.prod up -d
+
+<span class="code-comment"># Or pin to a specific release</span>
+IMAGE_TAG=v1.2.0 docker compose \
+  -f docker-compose.prod.yml \
+  --env-file .env.prod up -d</code></pre>
+          <div class="start-card-footer">
+            <div class="port-badge">
+              <span class="material-icons-round">public</span>
+              App → <strong>port 80</strong> (Nginx)
+            </div>
+            <div class="port-badge">
+              <span class="material-icons-round">inventory_2</span>
+              Images → <strong>ghcr.io/athamour1/fak-crm</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="credentials-box fade-up">
+        <div class="credentials-header">
+          <span class="material-icons-round">vpn_key</span>
+          Default Admin Credentials
+        </div>
+        <div class="credentials-body">
+          <div class="credential">
+            <span class="cred-label">Email</span>
+            <code class="cred-value">admin@fakcrm.local</code>
+          </div>
+          <div class="credential">
+            <span class="cred-label">Password</span>
+            <code class="cred-value">Admin1234!</code>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Footer ─────────────────────────────────────────────────────────── -->
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <a href="#" class="nav-logo">
+          <span class="logo-icon material-icons-round">medical_services</span>
+          <span class="logo-text">FAK<span class="logo-accent">-CRM</span></span>
+        </a>
+        <p>Open-source first aid kit management for organisations of any size.</p>
+      </div>
+      <div class="footer-links">
+        <h4>Links</h4>
+        <a href="#features">Features</a>
+        <a href="#how-it-works">How It Works</a>
+        <a href="#tech-stack">Tech Stack</a>
+        <a href="#get-started">Get Started</a>
+      </div>
+      <div class="footer-links">
+        <h4>Resources</h4>
+        <a href="https://github.com/athamour1/FAK-crm" target="_blank" rel="noopener">GitHub Repository</a>
+        <a href="https://github.com/athamour1/FAK-crm/issues" target="_blank" rel="noopener">Report an Issue</a>
+        <a href="https://github.com/athamour1/FAK-crm/blob/master/README.md" target="_blank" rel="noopener">Documentation</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="container">
+        <p>&copy; 2025 FAK-CRM. Released under the MIT License.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

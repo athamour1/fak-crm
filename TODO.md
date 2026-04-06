@@ -3,7 +3,7 @@
 - [ ] Add contact points for notifications
 - [ ] Add export to pdf
 - [X] Create readme md file
-- [ ] create a page for this project a webpage (add a folder for info site), and deploy it through the github actions to pages
+- [X] create a page for this project a webpage (add a folder for info site), and deploy it through the github actions to pages
 - [X] Add import from csv
 - [X] one kit has multiple assignes
 - [X] a checker should be able to see all content and edit it but not delete kits or users on his assigned kits as the admin
