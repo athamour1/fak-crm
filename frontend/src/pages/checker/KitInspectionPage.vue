@@ -43,6 +43,39 @@
       </q-card-section>
     </q-card>
 
+    <!-- ── Search & filter bar ──────────────────────────────────────────────── -->
+    <div v-if="!loading && kit" class="row q-col-gutter-sm q-mb-md items-center">
+      <div class="col-12 col-sm-6">
+        <q-input
+          v-model="search"
+          placeholder="Search items…"
+          outlined dense clearable
+          bg-color="transparent"
+        >
+          <template #prepend><q-icon name="search" /></template>
+        </q-input>
+      </div>
+      <div class="col-12 col-sm-6 row q-gutter-xs">
+        <q-btn-toggle
+          v-model="filter"
+          spread
+          no-caps
+          unelevated
+          dense
+          class="col"
+          :options="[
+            { label: 'All', value: 'all' },
+            { label: 'Pending', value: 'pending' },
+            { label: 'Expired', value: 'expired' },
+          ]"
+          color="grey-4"
+          text-color="dark"
+          toggle-color="primary"
+          toggle-text-color="white"
+        />
+      </div>
+    </div>
+
     <!-- ── Item list ──────────────────────────────────────────────────────────── -->
     <div v-if="loading" class="q-gutter-md">
       <q-card v-for="n in 4" :key="n" flat bordered>
@@ -54,8 +87,12 @@
     </div>
 
     <div v-else class="q-gutter-md">
+      <div v-if="filteredItems.length === 0" class="text-grey-6 text-center q-py-lg">
+        No items match your search.
+      </div>
+
       <q-card
-        v-for="item in items"
+        v-for="item in filteredItems"
         :key="item.kitItemId"
         flat bordered
         :class="[
@@ -238,6 +275,21 @@ interface ItemState {
 }
 
 const items = ref<ItemState[]>([]);
+const search = ref('');
+const filter = ref<'all' | 'pending' | 'expired'>('all');
+
+const filteredItems = computed(() => {
+  const q = search.value.trim().toLowerCase();
+  return items.value.filter((item) => {
+    if (filter.value === 'pending' && item.checked) return false;
+    if (filter.value === 'expired' && item.currentIsValid) return false;
+    if (!q) return true;
+    return (
+      item.name.toLowerCase().includes(q) ||
+      item.category.toLowerCase().includes(q)
+    );
+  });
+});
 
 const checkedCount = computed(() => items.value.filter((i) => i.checked).length);
 const expiredItemCount = computed(() => items.value.filter((i) => !i.currentIsValid).length);
