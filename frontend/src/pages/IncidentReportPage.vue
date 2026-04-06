@@ -4,7 +4,7 @@
     <!-- Header -->
     <div class="row items-center q-mb-md">
       <q-btn flat round dense icon="arrow_back" class="q-mr-sm"
-        :to="{ name: 'kit-landing', params: { id: kitId } }" />
+        :to="backRoute" />
       <div class="col">
         <div class="text-h5 text-negative row items-center">
           <q-icon name="warning" class="q-mr-sm" />Incident Report
@@ -129,7 +129,7 @@
 
     <!-- ── Sticky submit bar ──────────────────────────────────────────────────── -->
     <div class="submit-bar" v-if="kit && !loading">
-      <q-btn flat label="Cancel" :to="{ name: 'kit-landing', params: { id: kitId } }" />
+      <q-btn flat label="Cancel" :to="backRoute" />
       <q-btn
         unelevated color="negative" icon="send" label="Submit Report"
         :loading="submitting"
@@ -147,7 +147,7 @@
           Quantities have been updated for <strong>{{ kit?.name }}</strong>.
         </div>
         <q-btn unelevated color="primary" label="Back to Kit"
-          :to="{ name: 'kit-landing', params: { id: kitId } }" />
+          :to="backRoute" />
       </q-card>
     </q-dialog>
 
@@ -163,6 +163,9 @@ import { useNotify } from 'src/composables/useNotify';
 const route = useRoute();
 const notify = useNotify();
 const kitId = route.params.id as string;
+const backRoute = route.query['from'] === 'qr'
+  ? { name: 'dashboard' }
+  : backRoute;
 
 const kit = ref<Kit | null>(null);
 const loading = ref(false);

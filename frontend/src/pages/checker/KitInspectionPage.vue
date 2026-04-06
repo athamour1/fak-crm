@@ -6,7 +6,7 @@
 
       <!-- ── Header ─────────────────────────────────────────────────────────── -->
       <div class="row items-center q-mb-sm">
-        <q-btn flat round dense icon="arrow_back" :to="{ name: 'my-kit-detail', params: { id: kitId } }" class="q-mr-sm" />
+        <q-btn flat round dense icon="arrow_back" :to="backRoute" class="q-mr-sm" />
         <div class="col">
           <div class="text-h5" v-if="kit">{{ kit.name }}</div>
           <q-skeleton v-else type="text" width="180px" />
@@ -186,7 +186,7 @@
         <template #prepend><q-icon name="edit_note" /></template>
       </q-input>
       <div class="row items-center">
-        <q-btn flat label="Cancel" :to="{ name: 'my-kit-detail', params: { id: kitId } }" />
+        <q-btn flat label="Cancel" :to="backRoute" />
         <q-space />
         <q-btn
           unelevated color="primary" size="md"
@@ -206,7 +206,7 @@
         <div class="text-body2 text-grey-7 q-mb-lg">
           Your inspection for <strong>{{ kit?.name }}</strong> has been saved.
         </div>
-        <q-btn unelevated color="primary" label="Back to Kit" :to="{ name: 'my-kit-detail', params: { id: kitId } }" />
+        <q-btn unelevated color="primary" label="Back to Kit" :to="backRoute" />
       </q-card>
     </q-dialog>
 
@@ -225,6 +225,9 @@ import { useNotify } from 'src/composables/useNotify';
 const route = useRoute();
 const notify = useNotify();
 const kitId = route.params.id as string;
+const backRoute = route.query['from'] === 'qr'
+  ? { name: 'dashboard' }
+  : backRoute;
 
 const kit = ref<Kit | null>(null);
 const loading = ref(false);

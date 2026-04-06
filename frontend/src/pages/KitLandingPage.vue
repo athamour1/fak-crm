@@ -26,7 +26,7 @@
           unelevated color="negative" size="xl"
           icon="warning" label="Incident Report"
           class="landing-btn"
-          :to="{ name: 'kit-incident', params: { id: kit.id } }"
+          :to="{ name: 'kit-incident', params: { id: kit.id }, query: { from: 'qr' } }"
         >
           <q-tooltip>Record items used in an incident</q-tooltip>
         </q-btn>
@@ -46,7 +46,7 @@
           unelevated color="teal" size="xl"
           icon="fact_check" label="Start Inspection"
           class="landing-btn"
-          :to="{ name: 'kit-inspect', params: { id: kit.id } }"
+          :to="{ name: 'kit-inspect', params: { id: kit.id }, query: { from: 'qr' } }"
         />
 
       </div>
