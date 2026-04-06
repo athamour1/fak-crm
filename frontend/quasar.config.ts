@@ -87,7 +87,7 @@ export default defineConfig((/* ctx */) => {
     framework: {
       config: {
         brand: {
-          primary: '#b14d4dff',
+          primary: '#b14d4d',
           secondary: '#26a69a',
           accent: '#9c27b0',
           dark: '#1d1d1d',
@@ -164,7 +164,7 @@ export default defineConfig((/* ctx */) => {
         json.short_name = 'FAK-CRM';
         json.description = 'Manage, inspect, and track first-aid kits across your organisation.';
         json.display = 'standalone';
-        json.theme_color = '#c62828';
+        json.theme_color = '#b14d4d';
         json.background_color = '#ffffff';
         json.start_url = './';
       },
