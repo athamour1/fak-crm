@@ -1,1 +1,31 @@
 /* app global css */
+
+/* ── Dark mode scrollbars ────────────────────────────────────────────────────
+   Chromium-based browsers support ::-webkit-scrollbar customisation.
+   Firefox uses the `scrollbar-color` property.                               */
+
+.body--dark {
+  scrollbar-color: #555 #1d1d1d;
+}
+
+.body--dark ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.body--dark ::-webkit-scrollbar-track {
+  background: #1d1d1d;
+}
+
+.body--dark ::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+}
+
+.body--dark ::-webkit-scrollbar-thumb:hover {
+  background: #777;
+}
+
+.body--dark ::-webkit-scrollbar-corner {
+  background: #1d1d1d;
+}
