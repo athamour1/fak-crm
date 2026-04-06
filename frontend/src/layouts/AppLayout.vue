@@ -124,7 +124,7 @@ import NavItem from 'components/NavItem.vue';
 const $q = useQuasar();
 const authStore = useAuthStore();
 const router = useRouter();
-const drawerOpen = ref(true);
+const drawerOpen = ref($q.screen.gt.sm);
 
 function toggleDrawer() {
   drawerOpen.value = !drawerOpen.value;
