@@ -27,7 +27,7 @@
                 @click="props.expand = !props.expand"
               />
             </q-td>
-            <q-td v-for="col in props.cols" :key="col.name" :props="props">
+            <q-td v-for="col in props.cols" v-if="col.name !== 'expand'" :key="col.name" :props="props">
               <template v-if="col.name === 'createdAt'">{{ formatDate(col.value as string) }}</template>
               <template v-else-if="col.name === 'reporter'">{{ props.row.reportedBy.fullName }}</template>
               <template v-else-if="col.name === 'kit'">{{ props.row.kit.name }}</template>
@@ -39,12 +39,12 @@
           </q-tr>
 
           <q-tr v-show="props.expand" :props="props" :class="$q.dark.isActive ? 'bg-red-10' : 'bg-red-1'">
-            <q-td colspan="100%" style="padding: 0; max-width: 0;">
-              <div class="q-pa-sm" style="overflow-x: auto;">
+            <q-td colspan="100%" style="padding: 0;">
+              <div class="q-pa-sm" style="max-height: 260px; overflow-y: auto;">
                 <div v-if="props.row.description" class="q-mb-sm text-caption text-grey-8">
                   <strong>Description:</strong> {{ props.row.description }}
                 </div>
-                <q-markup-table dense flat bordered separator="cell" style="min-width: 360px;">
+                <q-markup-table dense flat bordered separator="cell">
                   <thead>
                     <tr :class="$q.dark.isActive ? 'bg-grey-9' : 'bg-grey-2'">
                       <th class="text-left">Item</th>
