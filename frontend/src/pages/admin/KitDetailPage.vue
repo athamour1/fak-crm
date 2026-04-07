@@ -264,6 +264,9 @@
       </q-card>
     </q-dialog>
 
+  <!-- BoM Preview Dialog -->
+  <BomPreviewDialog v-model="bomDialogOpen" :html="bomHtml" />
+
   </q-page>
 </template>
 
@@ -275,7 +278,8 @@ import { kitsApi, type Kit, type KitItem } from 'src/services/api';
 import { useNotify } from 'src/composables/useNotify';
 import { useAuthStore } from 'stores/auth.store';
 import ExpiryBadge from 'components/ExpiryBadge.vue';
-import { exportKitPdf } from 'src/composables/useKitPdf';
+import BomPreviewDialog from 'components/BomPreviewDialog.vue';
+import { buildBomHtml } from 'src/composables/useKitPdf';
 
 const authStore = useAuthStore();
 
@@ -283,14 +287,17 @@ const route = useRoute();
 const $q = useQuasar();
 const notify = useNotify();
 const exportingPdf = ref(false);
+const bomDialogOpen = ref(false);
+const bomHtml = ref('');
 
 async function exportPdf() {
   if (!kit.value) return;
   exportingPdf.value = true;
   try {
-    await exportKitPdf(kit.value, kit.value.kitItems);
+    bomHtml.value = await buildBomHtml(kit.value, kit.value.kitItems, $q.dark.isActive);
+    bomDialogOpen.value = true;
   } catch (e) {
-    notify.error(e, 'Failed to generate PDF');
+    notify.error(e, 'Failed to generate BoM');
   } finally {
     exportingPdf.value = false;
   }

@@ -37,7 +37,7 @@ function statusLabel(item: KitItem): { text: string; cls: string } {
   return { text: '✓ OK', cls: 'ok' };
 }
 
-export async function exportKitPdf(kit: Kit, items: KitItem[]): Promise<void> {
+export async function buildBomHtml(kit: Kit, items: KitItem[], isDark = false): Promise<string> {
   // ── QR code ────────────────────────────────────────────────────────────────
   const qrUrl = `${window.location.origin}${window.location.pathname}#/kit/${kit.id}`;
   const qrDataUrl = await QRCode.toDataURL(qrUrl, { width: 160, margin: 1 });
@@ -78,7 +78,7 @@ export async function exportKitPdf(kit: Kit, items: KitItem[]): Promise<void> {
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>BoM – ${kit.name}</title>
+  <title>BoM - ${kit.name}</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -202,6 +202,36 @@ export async function exportKitPdf(kit: Kit, items: KitItem[]): Promise<void> {
       .cat-row td { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
       .chip { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
+
+    ${isDark ? `
+    /* ── Dark mode ── */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #2d2d2d; }
+    ::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #777; }
+
+    body { background: #1e1e1e; color: #e0e0e0; }
+
+    .info-block {
+      background: #2a2a2a;
+      border-color: #3a3a3a;
+    }
+    .kit-name { color: #e57373; }
+    .meta-label { color: #aaa; }
+    .meta-val { color: #ddd; }
+    .qr-label { color: #aaa; }
+
+    thead tr th { background: #111; color: #e0e0e0; }
+    tbody tr:nth-child(even) { background: #262626; }
+    tbody tr td { border-bottom-color: #333; color: #ddd; }
+    tbody tr:nth-child(odd) { background: #1e1e1e; }
+
+    .footer { border-top-color: #444; color: #777; }
+
+    .status.ok      { color: #4caf50; }
+    .status.soon    { color: #ffc107; }
+    .status.expired { color: #f44336; }
+    ` : ''}
   </style>
 </head>
 <body>
@@ -271,15 +301,9 @@ export async function exportKitPdf(kit: Kit, items: KitItem[]): Promise<void> {
     <span>${kit.name} · ${date.formatDate(new Date(), 'DD MMM YYYY')}</span>
   </div>
 
-  <script>
-    window.onload = () => { window.print(); };
-  </script>
+
 </body>
 </html>`;
 
-  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-  const url  = URL.createObjectURL(blob);
-  const win  = window.open(url, '_blank');
-  if (win) win.focus();
-  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  return html;
 }
