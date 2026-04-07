@@ -14,3 +14,5 @@
 - [X] Change primary color to Red
 - [X] Add profile settings so the user can change his password or email
 - [X] Make this app a pwa
+- [ ] rename the app to ????
+- [ ] change the favicon just to a red cross on pwa and on docs

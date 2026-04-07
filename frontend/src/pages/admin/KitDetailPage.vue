@@ -28,6 +28,7 @@
         />
         <q-btn no-caps rounded color="secondary" icon="upload_file" label="Import CSV" unelevated @click="openImport" />
         <q-btn no-caps rounded color="primary" icon="add" label="Add Item" unelevated @click="openAddItem" />
+        <q-btn no-caps rounded color="deep-orange" icon="picture_as_pdf" label="Export BoM" unelevated :loading="exportingPdf" @click="exportPdf" />
       </div>
     </div>
 
@@ -274,12 +275,26 @@ import { kitsApi, type Kit, type KitItem } from 'src/services/api';
 import { useNotify } from 'src/composables/useNotify';
 import { useAuthStore } from 'stores/auth.store';
 import ExpiryBadge from 'components/ExpiryBadge.vue';
+import { exportKitPdf } from 'src/composables/useKitPdf';
 
 const authStore = useAuthStore();
 
 const route = useRoute();
 const $q = useQuasar();
 const notify = useNotify();
+const exportingPdf = ref(false);
+
+async function exportPdf() {
+  if (!kit.value) return;
+  exportingPdf.value = true;
+  try {
+    await exportKitPdf(kit.value, kit.value.kitItems);
+  } catch (e) {
+    notify.error(e, 'Failed to generate PDF');
+  } finally {
+    exportingPdf.value = false;
+  }
+}
 const kitId = route.params.id as string;
 
 const kit = ref<Kit | null>(null);
