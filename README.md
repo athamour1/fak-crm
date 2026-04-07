@@ -13,24 +13,28 @@ https://athamour1.github.io/fak-crm/
 - **Multi-assignee** — assign one or more checker users to each kit
 - **Item management** — add, edit, delete items per kit (name, category, unit, quantity, expiry date, location in kit, notes)
 - **CSV import** — bulk-import kit items from a CSV file
+- **BoM PDF export** — export a beautifully formatted Bill of Materials PDF per kit, including item table grouped by category, expiry status colour-coding, kit QR code, and summary stats — ready to print and insert into the physical kit
 - **QR codes** — generate and download a QR code per kit that links directly to the kit landing page
 - **User management** — create/manage admin and checker accounts
-- **Incident reports** — view all incident reports across kits
-- **Inspection history** — view all inspection logs across kits
+- **Incident reports** — view all incident reports across kits with expandable detail and vertical scroll
+- **Inspection history** — view all inspection logs across kits with expandable detail and inspector notes
 - **Dashboard** — summary widgets (total kits, items, expiring soon, already expired) + items needing attention panel
+- **Kit filter** — filter inspection and incident logs by kit
 
 ### Checker
 - **Assigned kits** — see only kits assigned to them
-- **Kit inspection** — step through each item, record quantity found and notes, submit an inspection log
-- **Incident report** — search kit items, select items used, record quantities and notes, submit a report (automatically deducts stock)
-- **My history** — view own inspection and incident report history
+- **Kit inspection** — search and filter items, step through each item, record quantity found and notes, submit an inspection log
+- **Incident report** — search kit items, select items used, record quantities and paragraph notes per item, submit a report (automatically deducts stock)
+- **My history** — view own inspection and incident report history (identical layout to admin tables)
 - **Dashboard** — personal summary of assigned kits, expired and expiring items
 
 ### General
 - **Role-based access control** — JWT-authenticated, `ADMIN` / `CHECKER` roles enforced on every endpoint
 - **Dark mode** — full dark-mode support toggled from the header, preference persisted in `localStorage`
 - **Expiry tracking** — items flagged as expired or expiring within 30 days with colour-coded indicators
-- **Responsive UI** — works on desktop and mobile browsers
+- **Responsive UI** — works on desktop and mobile; drawer starts closed on mobile
+- **PWA** — installable on any device, offline-resilient via Workbox `NetworkFirst` caching, auto-updates on new deploy
+- **Rounded UI** — consistent rounded buttons, inputs, cards, dialogs, banners and notifications throughout
 
 ---
 
@@ -180,7 +184,8 @@ FAK-crm/
 │   ├── prisma/
 │   │   ├── schema.prisma     # Data models
 │   │   ├── migrations/       # SQL migration history
-│   │   └── seed.ts           # Admin user seed
+│   │   ├── seed.ts           # Development seed (20 users, 10 kits, 300+ items, inspections & incidents)
+   └── seed.prod.ts      # Production seed (admin user only)
 │   └── src/
 │       ├── auth/             # JWT auth, guards, decorators
 │       ├── users/            # User CRUD (admin only)
@@ -197,7 +202,8 @@ FAK-crm/
 │       │   ├── checker/      # Checker pages (my kits, inspection, history)
 │       │   ├── KitLandingPage.vue   # QR code landing (3-button hub)
 │       │   └── IncidentReportPage.vue
-│       ├── components/       # Shared components (StatCard, NavItem, KitQrDialog…)
+│       ├── components/       # Shared components (StatCard, NavItem, KitQrDialog, ExpiryBadge…)
+│       ├── composables/      # useNotify, useKitPdf (BoM PDF export)
 │       ├── stores/           # Pinia stores (auth)
 │       ├── services/         # Axios API client + TypeScript interfaces
 │       └── layouts/          # AppLayout (drawer + header)
