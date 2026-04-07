@@ -1,7 +1,7 @@
 # TODO List
 
 - [ ] Add contact points for notifications
-- [ ] Add export to pdf
+- [X] Add export to pdf
 - [X] Create readme md file
 - [X] create a page for this project a webpage (add a folder for info site), and deploy it through the github actions to pages
 - [X] Add import from csv
@@ -14,5 +14,5 @@
 - [X] Change primary color to Red
 - [X] Add profile settings so the user can change his password or email
 - [X] Make this app a pwa
-- [ ] rename the app to OuchTracker
-- [ ] change the favicon just to a red cross on pwa and on docs
+- [X] rename the app to OuchTracker
+- [X] change the favicon just to a red cross on pwa and on docs

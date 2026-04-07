@@ -4,6 +4,8 @@ A full-stack web application for managing first-aid kits across an organisation.
 
 https://athamour1.github.io/ouchtracker/
 
+**Dev article:** https://thanos.mourtzoukos.space/projects/ouchtracker/
+
 ---
 
 ## Features
