@@ -1,5 +1,15 @@
 <template>
   <div class="login-page row items-center justify-center">
+    <!-- Dark mode toggle — top right corner -->
+    <q-btn
+      flat round dense
+      :icon="$q.dark.isActive ? 'light_mode' : 'dark_mode'"
+      class="dark-toggle text-white"
+      @click="toggleDark"
+    >
+      <q-tooltip>{{ $q.dark.isActive ? 'Light mode' : 'Dark mode' }}</q-tooltip>
+    </q-btn>
+
     <q-card class="login-card q-pa-lg shadow-5">
       <!-- Logo / branding -->
       <q-card-section class="text-center q-pb-sm">
@@ -87,7 +97,16 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+// @ts-ignore — quasar types are resolved inside the Docker container; not available locally
+import { useQuasar } from 'quasar';
 import { useAuthStore } from 'stores/auth.store';
+
+const $q = useQuasar();
+
+function toggleDark() {
+  $q.dark.toggle();
+  localStorage.setItem('darkMode', String($q.dark.isActive));
+}
 
 const router = useRouter();
 const route = useRoute();
@@ -120,6 +139,13 @@ async function handleLogin() {
 .login-page {
   min-height: 100vh;
   background: linear-gradient(135deg, #c0645e 0%, #7a2e2e 100%);
+  position: relative;
+}
+
+.dark-toggle {
+  position: absolute;
+  top: 16px;
+  right: 16px;
 }
 
 .login-card {
