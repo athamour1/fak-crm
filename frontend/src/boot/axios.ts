@@ -9,10 +9,6 @@ declare module 'vue' {
 }
 
 // ── Resolve API base URL ─────────────────────────────────────────────────────
-// Priority:
-//   1. window.__APP_CONFIG__.apiUrl  — runtime injection via container entrypoint
-//   2. process.env.API_URL           — Quasar build-time env (local dev .env)
-//   3. hard-coded fallback           — bare `npm run dev` without any config
 declare global {
   interface Window {
     __APP_CONFIG__?: { apiUrl?: string };
@@ -36,17 +32,65 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// ── Response interceptor: handle 401 globally ───────────────────────────────
+// ── Response interceptor: auto-refresh on 401 ───────────────────────────────
+let isRefreshing = false;
+let pendingQueue: Array<{ resolve: (v: unknown) => void; reject: (e: unknown) => void }> = [];
+
+function drainQueue(error: unknown, token?: string) {
+  pendingQueue.forEach(({ resolve, reject }) =>
+    error ? reject(error) : resolve(token),
+  );
+  pendingQueue = [];
+}
+
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
+  async (error) => {
+    const original = error.config;
+
+    if (error.response?.status !== 401 || original._retry) {
+      return Promise.reject(error);
+    }
+
+    // If a refresh is already in-flight, queue this request
+    if (isRefreshing) {
+      return new Promise((resolve, reject) => {
+        pendingQueue.push({ resolve, reject });
+      }).then((token) => {
+        original.headers.Authorization = `Bearer ${token as string}`;
+        return api(original);
+      });
+    }
+
+    original._retry = true;
+    isRefreshing = true;
+
+    try {
+      // Dynamically import the store to avoid circular dep at module load time
+      const { useAuthStore } = await import('src/stores/auth.store');
+      const { getActivePinia } = await import('pinia');
+      const pinia = getActivePinia();
+      if (!pinia) throw new Error('Pinia not ready');
+      const authStore = useAuthStore(pinia);
+
+      const ok = await authStore.tryRefresh();
+      if (!ok) throw new Error('Refresh failed');
+
+      const newToken = localStorage.getItem('access_token')!;
+      drainQueue(null, newToken);
+      original.headers.Authorization = `Bearer ${newToken}`;
+      return api(original);
+    } catch (refreshError) {
+      drainQueue(refreshError);
       localStorage.removeItem('access_token');
       localStorage.removeItem('user');
-      // Let the router guard handle the redirect; store will be empty
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('refresh_user_id');
       window.location.href = '/login';
+      return Promise.reject(refreshError);
+    } finally {
+      isRefreshing = false;
     }
-    return Promise.reject(error);
   },
 );
 

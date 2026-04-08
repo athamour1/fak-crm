@@ -14,6 +14,30 @@ export const useAuthStore = defineStore('auth', () => {
   const isAdmin = computed(() => user.value?.role === 'ADMIN');
   const isChecker = computed(() => user.value?.role === 'CHECKER');
 
+  // ── Storage helpers ────────────────────────────────────────────────────────
+  function saveSession(accessToken: string, userData: User, refreshToken: string | null) {
+    token.value = accessToken;
+    user.value = userData;
+    localStorage.setItem('access_token', accessToken);
+    localStorage.setItem('user', JSON.stringify(userData));
+    if (refreshToken) {
+      localStorage.setItem('refresh_token', refreshToken);
+      localStorage.setItem('refresh_user_id', userData.id);
+    } else {
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('refresh_user_id');
+    }
+  }
+
+  function clearSession() {
+    token.value = null;
+    user.value = null;
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('refresh_user_id');
+  }
+
   // ── Hydrate from localStorage on store creation ────────────────────────────
   function hydrateFromStorage() {
     const storedToken = localStorage.getItem('access_token');
@@ -23,22 +47,19 @@ export const useAuthStore = defineStore('auth', () => {
       try {
         user.value = JSON.parse(storedUser) as User;
       } catch {
-        clearStorage();
+        clearSession();
       }
     }
   }
 
   // ── Actions ────────────────────────────────────────────────────────────────
 
-  async function login(email: string, password: string): Promise<boolean> {
+  async function login(email: string, password: string, stayLoggedIn: boolean): Promise<boolean> {
     loading.value = true;
     error.value = null;
     try {
-      const { data } = await authApi.login(email, password);
-      token.value = data.accessToken;
-      user.value = data.user;
-      localStorage.setItem('access_token', data.accessToken);
-      localStorage.setItem('user', JSON.stringify(data.user));
+      const { data } = await authApi.login(email, password, stayLoggedIn);
+      saveSession(data.accessToken, data.user, data.refreshToken);
       return true;
     } catch (err: unknown) {
       const msg =
@@ -51,10 +72,26 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  function logout() {
-    token.value = null;
-    user.value = null;
-    clearStorage();
+  async function tryRefresh(): Promise<boolean> {
+    const refreshToken = localStorage.getItem('refresh_token');
+    const userId = localStorage.getItem('refresh_user_id');
+    if (!refreshToken || !userId) return false;
+
+    try {
+      const { data } = await authApi.refresh(userId, refreshToken);
+      saveSession(data.accessToken, data.user, data.refreshToken);
+      return true;
+    } catch {
+      clearSession();
+      return false;
+    }
+  }
+
+  async function logout() {
+    try {
+      await authApi.logout();
+    } catch { /* ignore — clear locally regardless */ }
+    clearSession();
   }
 
   /** Re-fetch the current user profile (e.g. after role change). */
@@ -64,18 +101,13 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = data;
       localStorage.setItem('user', JSON.stringify(data));
     } catch {
-      logout();
+      await logout();
     }
   }
 
   function setUser(updated: User) {
     user.value = updated;
     localStorage.setItem('user', JSON.stringify(updated));
-  }
-
-  function clearStorage() {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('user');
   }
 
   // Hydrate immediately when the store is first used
@@ -91,6 +123,7 @@ export const useAuthStore = defineStore('auth', () => {
     isChecker,
     login,
     logout,
+    tryRefresh,
     refreshUser,
     setUser,
   };

@@ -19,6 +19,7 @@ export interface User {
 
 export interface LoginResponse {
   accessToken: string;
+  refreshToken: string | null;
   user: User;
 }
 
@@ -105,8 +106,11 @@ export interface IncidentReport {
 // ── Auth ─────────────────────────────────────────────────────────────────────
 
 export const authApi = {
-  login: (email: string, password: string) =>
-    api.post<LoginResponse>('/auth/login', { email, password }),
+  login: (email: string, password: string, stayLoggedIn: boolean) =>
+    api.post<LoginResponse>('/auth/login', { email, password, stayLoggedIn }),
+  refresh: (userId: string, refreshToken: string) =>
+    api.post<LoginResponse>('/auth/refresh', { userId, refreshToken }),
+  logout: () => api.post('/auth/logout'),
   me: () => api.get<User>('/auth/me'),
 };
 
