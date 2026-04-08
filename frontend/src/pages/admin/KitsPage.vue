@@ -12,6 +12,20 @@
         :loading="loading" flat :pagination="{ rowsPerPage: 15 }"
         :filter="filter"
       >
+        <template #loading>
+          <q-inner-loading showing>
+            <div class="full-width">
+              <q-list separator>
+                <q-item v-for="n in 6" :key="n" class="q-py-sm">
+                  <q-item-section><q-skeleton type="text" width="40%" /></q-item-section>
+                  <q-item-section><q-skeleton type="text" width="30%" /></q-item-section>
+                  <q-item-section><q-skeleton type="text" width="50%" /></q-item-section>
+                  <q-item-section side><q-skeleton type="QBtn" /></q-item-section>
+                </q-item>
+              </q-list>
+            </div>
+          </q-inner-loading>
+        </template>
         <template #top-right>
           <q-input v-model="filter" dense outlined placeholder="Search…" debounce="300">
             <template #append><q-icon name="search" /></template>

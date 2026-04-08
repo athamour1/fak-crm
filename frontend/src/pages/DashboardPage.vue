@@ -50,9 +50,26 @@
         </div>
       </div>
 
+      <!-- Items Needing Attention skeleton -->
+      <q-card v-if="loading" flat bordered class="q-mb-md">
+        <q-card-section>
+          <q-skeleton type="text" width="200px" class="q-mb-sm" />
+          <q-list separator>
+            <q-item v-for="n in 3" :key="n" class="q-py-xs">
+              <q-item-section avatar><q-skeleton type="QAvatar" size="24px" /></q-item-section>
+              <q-item-section>
+                <q-skeleton type="text" width="50%" />
+                <q-skeleton type="text" width="30%" class="q-mt-xs" />
+              </q-item-section>
+              <q-item-section side><q-skeleton type="QBadge" /></q-item-section>
+            </q-item>
+          </q-list>
+        </q-card-section>
+      </q-card>
+
       <!-- Items Needing Attention -->
       <q-card
-        v-if="!loading && attentionItems.length > 0"
+        v-else-if="attentionItems.length > 0"
         flat bordered class="q-mb-md"
       >
         <q-card-section class="row items-center q-pb-none">
@@ -105,7 +122,23 @@
         </q-card-section>
 
         <q-card-section>
-          <q-list separator v-if="!loading && summary?.recentInspections?.length">
+          <!-- Skeleton -->
+          <q-list v-if="loading" separator>
+            <q-item v-for="n in 4" :key="n" class="q-py-sm">
+              <q-item-section avatar>
+                <q-skeleton type="QAvatar" size="36px" />
+              </q-item-section>
+              <q-item-section>
+                <q-skeleton type="text" width="40%" />
+                <q-skeleton type="text" width="60%" class="q-mt-xs" />
+              </q-item-section>
+              <q-item-section side>
+                <q-skeleton type="text" width="80px" />
+              </q-item-section>
+            </q-item>
+          </q-list>
+
+          <q-list separator v-else-if="summary?.recentInspections?.length">
             <q-item
               v-for="log in summary.recentInspections"
               :key="log.id"
@@ -128,11 +161,9 @@
             </q-item>
           </q-list>
 
-          <div v-else-if="!loading" class="text-grey-6 text-center q-py-md">
+          <div v-else class="text-grey-6 text-center q-py-md">
             No inspections yet.
           </div>
-
-          <q-skeleton v-if="loading" type="rect" height="120px" />
         </q-card-section>
       </q-card>
     </template>
