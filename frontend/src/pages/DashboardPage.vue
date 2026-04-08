@@ -238,13 +238,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useI18n } from 'vue-i18n';
 import { alertsApi, kitsApi, type AlertSummary, type Kit } from 'src/services/api';
 import { useAuthStore } from 'stores/auth.store';
 import StatCard from 'components/StatCard.vue';
 import { date } from 'quasar';
 
-const { t: _t } = useI18n();
 const authStore = useAuthStore();
 const router = useRouter();
 

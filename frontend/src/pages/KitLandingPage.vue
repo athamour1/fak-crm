@@ -61,11 +61,9 @@
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useQuasar } from 'quasar';
-import { useI18n } from 'vue-i18n';
 import { kitsApi, type Kit } from 'src/services/api';
 import { useAuthStore } from 'stores/auth.store';
 
-const { t: _t } = useI18n();
 const $q = useQuasar();
 
 const route = useRoute();

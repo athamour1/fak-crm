@@ -143,11 +143,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useI18n } from 'vue-i18n';
 import { kitsApi, type Kit } from 'src/services/api';
 import { useNotify } from 'src/composables/useNotify';
 
-const { t: _t } = useI18n();
 const router = useRouter();
 const notify = useNotify();
 const kits = ref<Kit[]>([]);

@@ -135,12 +135,10 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
-import { useI18n } from 'vue-i18n';
 import { useAuthStore } from 'stores/auth.store';
 import { usePwaInstall } from 'src/composables/usePwaInstall';
 import NavItem from 'components/NavItem.vue';
 
-const { t: _t } = useI18n();
 const $q = useQuasar();
 const authStore = useAuthStore();
 const router = useRouter();

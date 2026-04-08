@@ -153,7 +153,7 @@
             </template>
             <template #selected-item="scope">
               <span class="q-mr-sm">{{ localeOptions.find(o => o.value === scope.opt)?.flag }}</span>
-              {{ scope.opt }}
+              {{ localeOptions.find(o => o.value === scope.opt)?.label }}
             </template>
           </q-select>
         </q-card>
@@ -176,7 +176,7 @@ const { t } = useI18n();
 const authStore = useAuthStore();
 const notify = useNotify();
 
-const localeOptions = LOCALES.map((l) => ({ label: `${l.flag} ${l.label}`, value: l.value, flag: l.flag }));
+const localeOptions = LOCALES.map((l) => ({ label: l.label, value: l.value, flag: l.flag }));
 
 // ── Personal info form ─────────────────────────────────────────────────────
 const infoForm = reactive({ fullName: '', email: '' });
