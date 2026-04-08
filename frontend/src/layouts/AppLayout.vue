@@ -16,7 +16,27 @@
         >
           <q-tooltip>{{ $q.dark.isActive ? 'Light mode' : 'Dark mode' }}</q-tooltip>
         </q-btn>
+
+        <!-- PWA install button — only shown when installable -->
+        <q-btn no-caps rounded
+          v-if="isInstallable"
+          flat dense round
+          icon="install_mobile"
+          @click="handleInstall"
+        >
+          <q-tooltip>Install App</q-tooltip>
+        </q-btn>
       </q-toolbar>
+
+      <!-- PWA install banner -->
+      <transition name="slide-down">
+        <div v-if="isInstallable && showBanner" class="install-banner row items-center q-px-md q-py-sm">
+          <q-icon name="install_mobile" size="20px" class="q-mr-sm" />
+          <div class="col text-body2">Install OuchTracker for quick offline access</div>
+          <q-btn no-caps rounded flat dense label="Install" color="white" class="q-mr-xs" @click="handleInstall" />
+          <q-btn no-caps rounded flat dense round icon="close" color="white" @click="showBanner = false" />
+        </div>
+      </transition>
     </q-header>
 
     <!-- ── Left drawer / sidebar ─────────────────────────────────────────────── -->
@@ -116,12 +136,21 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import { useAuthStore } from 'stores/auth.store';
+import { usePwaInstall } from 'src/composables/usePwaInstall';
 import NavItem from 'components/NavItem.vue';
 
 const $q = useQuasar();
 const authStore = useAuthStore();
 const router = useRouter();
 const drawerOpen = ref($q.screen.gt.sm);
+
+const { isInstallable, install } = usePwaInstall();
+const showBanner = ref(true);
+
+async function handleInstall() {
+  showBanner.value = false;
+  await install();
+}
 
 function toggleDrawer() {
   drawerOpen.value = !drawerOpen.value;
@@ -143,6 +172,21 @@ async function handleLogout() {
 </script>
 
 <style scoped lang="css">
+.install-banner {
+  background: rgba(0, 0, 0, 0.25);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.slide-down-enter-active,
+.slide-down-leave-active {
+  transition: all 0.25s ease;
+}
+.slide-down-enter-from,
+.slide-down-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
 .drawer-brand {
   height: 72px;
   flex-shrink: 0;
