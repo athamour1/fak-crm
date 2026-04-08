@@ -183,12 +183,12 @@ const infoForm = reactive({ fullName: '', email: '' });
 const savingInfo = ref(false);
 
 // ── Language ───────────────────────────────────────────────────────────────
-const selectedLocale = ref<Locale>((localStorage.getItem('locale') as Locale) ?? 'en');
+const selectedLocale = ref<Locale>('en');
 
 onMounted(() => {
   infoForm.fullName = authStore.user?.fullName ?? '';
   infoForm.email = authStore.user?.email ?? '';
-  selectedLocale.value = ((authStore.user as (typeof authStore.user & { locale?: string }))?.locale as Locale) ?? (localStorage.getItem('locale') as Locale) ?? 'en';
+  selectedLocale.value = (authStore.user?.locale as Locale) ?? (localStorage.getItem('locale') as Locale) ?? 'en';
 });
 
 async function saveInfo() {
