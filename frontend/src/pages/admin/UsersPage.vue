@@ -6,25 +6,24 @@
       <q-btn no-caps rounded color="primary" icon="add" label="Add User" unelevated @click="openCreate" />
     </div>
 
-    <q-card flat bordered>
+    <!-- Skeleton -->
+    <q-card v-if="loading" flat bordered>
+      <q-card-section>
+        <q-skeleton type="text" width="25%" class="q-mb-md" />
+        <q-item v-for="n in 8" :key="n" class="q-py-sm">
+          <q-item-section><q-skeleton type="text" width="45%" /></q-item-section>
+          <q-item-section><q-skeleton type="text" width="55%" /></q-item-section>
+          <q-item-section><q-skeleton type="QBadge" /></q-item-section>
+          <q-item-section side><q-skeleton type="QBtn" /></q-item-section>
+        </q-item>
+      </q-card-section>
+    </q-card>
+
+    <q-card v-else flat bordered>
       <q-table
         :rows="users" :columns="columns" row-key="id"
-        :loading="loading" flat :pagination="{ rowsPerPage: 15 }"
+        flat :pagination="{ rowsPerPage: 15 }"
       >
-        <template #loading>
-          <q-inner-loading showing>
-            <div class="full-width">
-              <q-list separator>
-                <q-item v-for="n in 6" :key="n" class="q-py-sm">
-                  <q-item-section><q-skeleton type="text" width="45%" /></q-item-section>
-                  <q-item-section><q-skeleton type="text" width="55%" /></q-item-section>
-                  <q-item-section><q-skeleton type="QBadge" /></q-item-section>
-                  <q-item-section side><q-skeleton type="QBtn" /></q-item-section>
-                </q-item>
-              </q-list>
-            </div>
-          </q-inner-loading>
-        </template>
         <template #body-cell-role="props">
           <q-td :props="props">
             <q-chip dense :color="props.value === 'ADMIN' ? 'orange' : 'teal'" text-color="white" :label="props.value" />

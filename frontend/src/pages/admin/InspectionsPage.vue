@@ -14,25 +14,23 @@
       />
     </div>
 
-    <q-card flat bordered style="overflow: hidden;">
+    <!-- Skeleton -->
+    <q-card v-if="loading" flat bordered>
+      <q-card-section>
+        <q-item v-for="n in 8" :key="n" class="q-py-sm">
+          <q-item-section><q-skeleton type="text" width="20%" /></q-item-section>
+          <q-item-section><q-skeleton type="text" width="35%" /></q-item-section>
+          <q-item-section><q-skeleton type="text" width="30%" /></q-item-section>
+          <q-item-section side><q-skeleton type="QBadge" /></q-item-section>
+        </q-item>
+      </q-card-section>
+    </q-card>
+
+    <q-card v-else flat bordered style="overflow: hidden;">
       <q-table
         :rows="logs" :columns="columns" row-key="id"
-        :loading="loading" flat :pagination="{ rowsPerPage: 20 }"
+        flat :pagination="{ rowsPerPage: 20 }"
       >
-        <template #loading>
-          <q-inner-loading showing>
-            <div class="full-width">
-              <q-list separator>
-                <q-item v-for="n in 6" :key="n" class="q-py-sm">
-                  <q-item-section><q-skeleton type="text" width="20%" /></q-item-section>
-                  <q-item-section><q-skeleton type="text" width="35%" /></q-item-section>
-                  <q-item-section><q-skeleton type="text" width="25%" /></q-item-section>
-                  <q-item-section side><q-skeleton type="QBadge" /></q-item-section>
-                </q-item>
-              </q-list>
-            </div>
-          </q-inner-loading>
-        </template>
         <template #body-cell-createdAt="props">
           <q-td :props="props">{{ formatDate(props.value) }}</q-td>
         </template>

@@ -6,26 +6,26 @@
       <q-btn no-caps rounded color="primary" icon="add" label="New Kit" unelevated @click="openCreate" />
     </div>
 
-    <q-card flat bordered>
+    <!-- Skeleton -->
+    <q-card v-if="loading" flat bordered>
+      <q-card-section>
+        <q-skeleton type="text" width="30%" class="q-mb-md" />
+        <q-skeleton type="QInput" class="q-mb-sm" />
+        <q-item v-for="n in 8" :key="n" class="q-py-sm">
+          <q-item-section><q-skeleton type="text" width="40%" /></q-item-section>
+          <q-item-section><q-skeleton type="text" width="30%" /></q-item-section>
+          <q-item-section><q-skeleton type="text" width="50%" /></q-item-section>
+          <q-item-section side><q-skeleton type="QBtn" /></q-item-section>
+        </q-item>
+      </q-card-section>
+    </q-card>
+
+    <q-card v-else flat bordered>
       <q-table
         :rows="kits" :columns="columns" row-key="id"
-        :loading="loading" flat :pagination="{ rowsPerPage: 15 }"
+        flat :pagination="{ rowsPerPage: 15 }"
         :filter="filter"
       >
-        <template #loading>
-          <q-inner-loading showing>
-            <div class="full-width">
-              <q-list separator>
-                <q-item v-for="n in 6" :key="n" class="q-py-sm">
-                  <q-item-section><q-skeleton type="text" width="40%" /></q-item-section>
-                  <q-item-section><q-skeleton type="text" width="30%" /></q-item-section>
-                  <q-item-section><q-skeleton type="text" width="50%" /></q-item-section>
-                  <q-item-section side><q-skeleton type="QBtn" /></q-item-section>
-                </q-item>
-              </q-list>
-            </div>
-          </q-inner-loading>
-        </template>
         <template #top-right>
           <q-input v-model="filter" dense outlined placeholder="Search…" debounce="300">
             <template #append><q-icon name="search" /></template>
