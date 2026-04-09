@@ -26,11 +26,18 @@
           color="teal" icon="fact_check" :label="$t('kits.startInspection')" unelevated
           :to="{ name: 'kit-inspect', params: { id: kitId } }"
         />
-        <q-btn no-caps rounded color="secondary" icon="upload_file" :label="$t('kits.importCsv')" unelevated @click="openImport" />
-        <q-btn no-caps rounded color="primary" icon="add" :label="$t('kits.addItem')" unelevated @click="openAddItem" />
+        <q-btn no-caps rounded color="secondary" icon="upload_file" :label="$t('kits.importCsv')" unelevated
+          :disable="!isOnline" @click="openImport" />
+        <q-btn no-caps rounded color="primary" icon="add" :label="$t('kits.addItem')" unelevated
+          :disable="!isOnline" @click="openAddItem" />
         <q-btn no-caps rounded color="deep-orange" icon="picture_as_pdf" :label="$t('kits.exportBom')" unelevated :loading="exportingPdf" @click="exportPdf" />
       </div>
     </div>
+
+    <q-banner v-if="!isOnline" dense class="q-mb-md bg-orange-1 text-orange-9">
+      <template #avatar><q-icon name="cloud_off" /></template>
+      {{ $t('offline.cachedData') }}
+    </q-banner>
 
     <!-- ── Expiry alert banner ───────────────────────────────────────────────── -->
     <q-banner
@@ -103,9 +110,9 @@
               <template v-else-if="col.name === 'actions'">
                 <div class="q-gutter-xs">
                   <q-btn no-caps rounded flat dense round icon="edit" color="primary" size="sm"
-                    @click="openEditItem(props.row)" />
+                    :disable="!isOnline" @click="openEditItem(props.row)" />
                   <q-btn no-caps rounded flat dense round icon="delete" color="negative" size="sm"
-                    @click="confirmRemoveItem(props.row)" />
+                    :disable="!isOnline" @click="confirmRemoveItem(props.row)" />
                 </div>
               </template>
               <template v-else>{{ col.value }}</template>
@@ -277,6 +284,7 @@ import { useQuasar, date, type QTableColumn } from 'quasar';
 import { useI18n } from 'vue-i18n';
 import { kitsApi, type Kit, type KitItem } from 'src/services/api';
 import { useNotify } from 'src/composables/useNotify';
+import { useOnline } from 'src/composables/useOnline';
 import { useAuthStore } from 'stores/auth.store';
 import ExpiryBadge from 'components/ExpiryBadge.vue';
 import BomPreviewDialog from 'components/BomPreviewDialog.vue';
@@ -284,6 +292,7 @@ import { buildBomHtml } from 'src/composables/useKitPdf';
 
 const { t } = useI18n();
 const authStore = useAuthStore();
+const { isOnline } = useOnline();
 
 const route = useRoute();
 const $q = useQuasar();

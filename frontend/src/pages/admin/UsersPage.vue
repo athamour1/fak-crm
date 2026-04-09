@@ -3,8 +3,14 @@
     <div class="row items-center q-mb-md">
       <div class="text-h5"><q-icon name="people" class="q-mr-sm" />{{ $t('users.title') }}</div>
       <q-space />
-      <q-btn no-caps rounded color="primary" icon="add" :label="$t('users.addUser')" unelevated @click="openCreate" />
+      <q-btn no-caps rounded color="primary" icon="add" :label="$t('users.addUser')" unelevated
+        :disable="!isOnline" @click="openCreate" />
     </div>
+
+    <q-banner v-if="!isOnline" dense class="q-mb-md bg-orange-1 text-orange-9">
+      <template #avatar><q-icon name="cloud_off" /></template>
+      {{ $t('offline.cachedData') }}
+    </q-banner>
 
     <!-- Skeleton -->
     <q-card v-if="loading" flat bordered>
@@ -37,8 +43,10 @@
         </template>
         <template #body-cell-actions="props">
           <q-td :props="props" class="q-gutter-xs">
-            <q-btn no-caps rounded flat dense round icon="edit" color="primary" size="sm" @click="openEdit(props.row)" />
-            <q-btn no-caps rounded flat dense round icon="delete" color="negative" size="sm" @click="confirmDelete(props.row)" />
+            <q-btn no-caps rounded flat dense round icon="edit" color="primary" size="sm"
+              :disable="!isOnline" @click="openEdit(props.row)" />
+            <q-btn no-caps rounded flat dense round icon="delete" color="negative" size="sm"
+              :disable="!isOnline" @click="confirmDelete(props.row)" />
           </q-td>
         </template>
       </q-table>
@@ -84,10 +92,12 @@ import { useQuasar, type QTableColumn } from 'quasar';
 import { useI18n } from 'vue-i18n';
 import { usersApi, type User } from 'src/services/api';
 import { useNotify } from 'src/composables/useNotify';
+import { useOnline } from 'src/composables/useOnline';
 
 const { t } = useI18n();
 const $q = useQuasar();
 const notify = useNotify();
+const { isOnline } = useOnline();
 const users = ref<User[]>([]);
 const loading = ref(false);
 const saving = ref(false);
