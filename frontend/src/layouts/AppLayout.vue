@@ -37,6 +37,14 @@
           <q-btn no-caps rounded flat dense round icon="close" color="white" @click="dismissBanner" />
         </div>
       </transition>
+
+      <!-- Offline bar -->
+      <div v-if="!isOnline" class="offline-bar row items-center q-px-md q-py-xs">
+        <q-icon name="cloud_off" size="16px" class="q-mr-sm" />
+        <span class="text-caption">{{ $t('offline.banner') }}</span>
+        <q-space />
+        <q-badge v-if="syncQueue.pendingCount > 0" color="warning" :label="`${syncQueue.pendingCount} pending`" />
+      </div>
     </q-header>
 
     <!-- ── Left drawer / sidebar ─────────────────────────────────────────────── -->
@@ -132,17 +140,38 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
+import { useI18n } from 'vue-i18n';
 import { useAuthStore } from 'stores/auth.store';
 import { usePwaInstall } from 'src/composables/usePwaInstall';
+import { useOnline } from 'src/composables/useOnline';
+import { useSyncQueue } from 'src/stores/sync-queue.store';
+import { useNotify } from 'src/composables/useNotify';
 import NavItem from 'components/NavItem.vue';
 
+const { t } = useI18n();
 const $q = useQuasar();
 const authStore = useAuthStore();
 const router = useRouter();
 const drawerOpen = ref($q.screen.gt.sm);
+const { isOnline } = useOnline();
+const syncQueue = useSyncQueue();
+const notify = useNotify();
+
+// Auto-flush queued submissions when connectivity returns
+watch(isOnline, async (online) => {
+  if (!online || !syncQueue.hasPending) return;
+  const { submitted, failed } = await syncQueue.flush();
+  if (submitted > 0 && failed === 0) {
+    notify.success(t('offline.syncSuccess', { n: submitted }));
+  } else if (submitted > 0 && failed > 0) {
+    notify.success(t('offline.syncPartial', { n: submitted, f: failed }));
+  } else if (failed > 0) {
+    notify.error(null, t('offline.syncPartial', { n: 0, f: failed }));
+  }
+});
 
 const { isInstallable, install } = usePwaInstall();
 const showBanner = ref(localStorage.getItem('pwa-banner-dismissed') !== 'true');
@@ -179,6 +208,12 @@ async function handleLogout() {
 <style scoped lang="css">
 .install-banner {
   background: rgba(0, 0, 0, 0.25);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+.offline-bar {
+  background: rgba(180, 70, 0, 0.88);
+  color: white;
+  min-height: 30px;
   border-top: 1px solid rgba(255, 255, 255, 0.15);
 }
 
