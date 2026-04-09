@@ -73,6 +73,16 @@ fi
 
 echo ""
 
+# ─── Bump version in package.json files & commit ───────────────────────────────
+info "Bumping version to ${VERSION}..."
+# Update frontend/package.json
+sed -i "s/\"version\": \".*\"/\"version\": \"${VERSION}\"/" frontend/package.json
+ok "frontend/package.json → ${VERSION}"
+
+git add frontend/package.json
+git commit -m "chore(release): bump version to ${VERSION}"
+ok "Version commit created"
+
 # ─── Login to GHCR ─────────────────────────────────────────────────────────────
 info "Logging in to ${REGISTRY}..."
 gh auth token | docker login "$REGISTRY" -u "$(gh api user -q .login)" --password-stdin

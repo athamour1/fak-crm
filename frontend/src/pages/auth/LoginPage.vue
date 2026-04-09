@@ -19,7 +19,7 @@
       </q-card-section>
 
       <!-- Login form -->
-      <q-card-section>
+      <q-card-section class="q-pt-none">
         <q-form @submit="handleLogin" class="login-form">
           <q-input
             v-model="email"
@@ -100,6 +100,11 @@
           />
         </q-form>
       </q-card-section>
+
+      <!-- Version footer -->
+      <q-card-section class="text-center q-pt-none q-pb-sm">
+        <div class="text-caption text-grey-5">v{{ appVersion }}</div>
+      </q-card-section>
     </q-card>
   </div>
 </template>
@@ -115,6 +120,7 @@ import { useOnline } from 'src/composables/useOnline';
 const { t } = useI18n();
 const $q = useQuasar();
 const { isOnline } = useOnline();
+const appVersion = process.env.APP_VERSION;
 
 function toggleDark() {
   $q.dark.toggle();

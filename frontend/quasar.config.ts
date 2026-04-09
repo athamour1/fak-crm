@@ -2,6 +2,7 @@
 // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file
 
 import { defineConfig } from '#q-app/wrappers';
+import { version } from './package.json';
 export default defineConfig((/* ctx */) => {
   return {
     // https://v2.quasar.dev/quasar-cli-vite/prefetch-feature
@@ -53,6 +54,7 @@ export default defineConfig((/* ctx */) => {
       // analyze: true,
       env: {
         API_URL: process.env.VITE_API_URL ?? 'http://localhost:3000/api',
+        APP_VERSION: version,
       },
       // rawDefine: {}
       // ignorePublicFolder: true,
