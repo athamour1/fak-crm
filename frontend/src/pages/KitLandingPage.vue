@@ -1,5 +1,5 @@
 <template>
-  <q-page class="column items-center justify-center" :class="$q.dark.isActive ? 'bg-dark' : 'bg-grey-1'">
+  <q-page class="ot-page-shell column items-center justify-center" :class="$q.dark.isActive ? 'bg-dark' : 'bg-grey-1'">
 
     <div v-if="loading" class="column items-center q-gutter-md">
       <q-spinner-medical color="primary" size="64px" />
@@ -85,8 +85,8 @@ onMounted(async () => {
 
 <style scoped lang="css">
 .landing-btn {
-  border-radius: 16px;
+  border-radius: var(--ot-radius-lg);
   font-size: 1.1rem;
-  padding: 20px 24px;
+  padding: 18px 22px;
 }
 </style>

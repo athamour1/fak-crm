@@ -1,5 +1,5 @@
 <template>
-  <q-page padding>
+  <q-page padding class="ot-page-shell">
     <div class="text-h5 q-mb-lg">
       <q-icon name="inventory" class="q-mr-sm" />{{ $t('nav.myKits') }}
     </div>
@@ -18,7 +18,7 @@
     </div>
 
     <!-- Empty state -->
-    <div v-else-if="!kits.length" class="column items-center q-py-xl text-grey-5">
+    <div v-else-if="!kits.length" class="ot-empty-state">
       <q-icon name="inventory_2" size="64px" class="q-mb-md" />
       <div class="text-h6">{{ $t('kits.noKits') }}</div>
       <div class="text-caption">Contact your admin to get a kit assigned to you.</div>
@@ -182,6 +182,6 @@ onMounted(async () => {
 
 <style scoped lang="css">
 .kit-card {
-  border-radius: 12px;
+  border-radius: var(--ot-radius-md);
 }
 </style>
