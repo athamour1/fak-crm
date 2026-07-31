@@ -1,5 +1,5 @@
 <template>
-  <q-page padding class="incident-page">
+  <q-page padding class="incident-page ot-page-shell">
 
     <!-- Header -->
     <div class="row items-center q-mb-md">
@@ -9,7 +9,7 @@
         <div class="text-h5 text-negative row items-center">
           <q-icon name="warning" class="q-mr-sm" />{{ $t('incidents.fileIncident') }}
         </div>
-        <div class="text-caption text-grey-6" v-if="kit">Kit: <strong>{{ kit.name }}</strong></div>
+        <div class="text-caption text-grey-6" v-if="kit">{{ $t('dashboard.kit') }}: <strong>{{ kit.name }}</strong></div>
       </div>
     </div>
 
@@ -57,7 +57,7 @@
               <q-item-label>{{ item.name }}</q-item-label>
               <q-item-label caption>
                 {{ item.category || '' }}{{ item.unit ? ` · ${item.unit}` : '' }}
-                · Available: {{ item.quantity }}
+                · {{ $t('incidents.availableQty', { n: item.quantity }) }}
               </q-item-label>
             </q-item-section>
             <q-item-section side>
@@ -71,7 +71,7 @@
         v-if="showResults && search && !searchResults.length"
         class="text-caption text-grey-5 q-mb-md q-pl-sm"
       >
-        No matching items found.
+        {{ $t('incidents.noMatchingItems') }}
       </div>
 
       <!-- Incident items list -->
@@ -94,7 +94,7 @@
                 type="number" outlined dense :label="$t('incidents.quantityUsed')"
                 min="0" :max="item.quantity"
                 style="width: 90px"
-                :rules="[(v) => v >= 0 || '≥0']"
+                :rules="nonNegativeRules"
                 hide-bottom-space
               />
               <q-btn no-caps rounded flat round dense icon="close" color="negative" size="sm"
@@ -110,22 +110,26 @@
         </q-card>
       </div>
 
-      <div v-else class="text-grey-5 text-center q-py-lg q-mb-xl">
-        Search for items above and add them to the report.
+      <div v-else class="ot-empty-state q-mb-xl">
+        {{ $t('incidents.searchAndAdd') }}
       </div>
 
     </template>
 
     <!-- ── Sticky submit bar ──────────────────────────────────────────────────── -->
-    <div class="submit-bar" v-if="kit && !loading">
-      <q-btn no-caps rounded flat :label="$t('common.cancel')" :to="backRoute" />
-      <q-btn no-caps rounded
-        unelevated color="negative" icon="send" :label="$t('incidents.submitReport')"
-        :loading="submitting"
-        :disable="incidentItems.length === 0"
-        @click="submit"
-      />
-    </div>
+    <StickyActionBar v-if="kit && !loading">
+      <template #left>
+        <q-btn no-caps rounded flat :label="$t('common.cancel')" :to="backRoute" />
+      </template>
+      <template #right>
+        <q-btn no-caps rounded
+          unelevated color="negative" icon="send" :label="$t('incidents.submitReport')"
+          :loading="submitting"
+          :disable="incidentItems.length === 0"
+          @click="submit"
+        />
+      </template>
+    </StickyActionBar>
 
     <!-- Success -->
     <q-dialog v-model="successDialog" persistent>
@@ -138,7 +142,7 @@
             {{ $t('offline.queuedSubmission') }}
           </template>
           <template v-else>
-            Quantities have been updated for <strong>{{ kit?.name }}</strong>.
+            {{ $t('incidents.updatedForKit', { name: kit?.name }) }}
           </template>
         </div>
         <q-btn no-caps rounded unelevated color="primary" :label="$t('common.backToDashboard')"
@@ -157,12 +161,16 @@ import { kitsApi, incidentsApi, type Kit } from 'src/services/api';
 import { useNotify } from 'src/composables/useNotify';
 import { useOnline } from 'src/composables/useOnline';
 import { useSyncQueue } from 'src/stores/sync-queue.store';
+import StickyActionBar from 'components/StickyActionBar.vue';
+import { useFormValidation } from 'src/composables/useFormValidation';
 
 const { t } = useI18n();
 const route = useRoute();
+const validation = useFormValidation(t);
 const notify = useNotify();
 const { isOnline } = useOnline();
 const syncQueue = useSyncQueue();
+const nonNegativeRules = [validation.nonNegative()];
 const kitId = route.params.id as string;
 const backRoute: RouteLocationRaw = route.query['from'] === 'qr'
   ? { name: 'dashboard' }
@@ -275,7 +283,7 @@ onMounted(async () => {
 .incident-page {
   max-width: 760px;
   margin: 0 auto;
-  padding-bottom: 80px;
+  padding-bottom: 32px;
 }
 
 .search-results {
@@ -284,26 +292,6 @@ onMounted(async () => {
 }
 
 .incident-item {
-  border-left: 3px solid #c10015;
-}
-
-.submit-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 24px;
-  background: white;
-  border-top: 1px solid #e0e0e0;
-  box-shadow: 0 -2px 12px rgba(0,0,0,0.08);
-}
-.body--dark .submit-bar {
-  background: #1d1d1d;
-  border-top: 1px solid #444;
-  box-shadow: 0 -2px 12px rgba(0,0,0,0.4);
+  border-left: 3px solid var(--ot-color-danger);
 }
 </style>
