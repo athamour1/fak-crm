@@ -51,11 +51,11 @@
         <q-icon :name="expiredCount > 0 ? 'dangerous' : 'warning'" />
       </template>
       <span v-if="expiredCount > 0">
-        <strong>{{ expiredCount }}</strong> item{{ expiredCount > 1 ? 's' : '' }} expired
-        <span v-if="expiringSoonCount > 0"> and <strong>{{ expiringSoonCount }}</strong> expiring soon</span>.
+        <strong>{{ expiredCount }}</strong> {{ $t('kitDetail.expiredItems', { n: expiredCount }) }}
+        <span v-if="expiringSoonCount > 0"> {{ $t('kitDetail.andExpiringSoon', { n: expiringSoonCount }) }}</span>.
       </span>
       <span v-else>
-        <strong>{{ expiringSoonCount }}</strong> item{{ expiringSoonCount > 1 ? 's' : '' }} expiring within 30 days.
+        <strong>{{ expiringSoonCount }}</strong> {{ $t('kitDetail.expiringWithinDays', { n: expiringSoonCount, days: 30 }) }}.
       </span>
     </q-banner>
 
@@ -68,6 +68,7 @@
         :loading="loading"
         flat
         :pagination="{ rowsPerPage: 20 }"
+        :grid="$q.screen.lt.md"
       >
         <template #top>
           <q-input
@@ -119,6 +120,30 @@
             </q-td>
           </q-tr>
         </template>
+
+        <template #item="props">
+          <div class="q-pa-xs col-12">
+            <q-card flat bordered>
+              <q-card-section class="q-pb-xs">
+                <div class="text-subtitle2 text-weight-medium">{{ props.row.name }}</div>
+                <div class="text-caption text-grey-6">{{ props.row.category || '—' }}</div>
+              </q-card-section>
+              <q-card-section class="q-pt-none q-pb-sm">
+                <div class="text-caption">{{ $t('kitDetail.quantity') }}: <strong>{{ props.row.quantity }}</strong></div>
+                <div class="text-caption">{{ $t('kitDetail.expirationDate') }}:
+                  <strong>{{ props.row.expirationDate ? formatDate(props.row.expirationDate) : '—' }}</strong>
+                </div>
+              </q-card-section>
+              <q-separator />
+              <q-card-actions align="right">
+                <q-btn no-caps rounded flat dense icon="edit" color="primary" :label="$t('common.edit')"
+                  :disable="!isOnline" @click="openEditItem(props.row)" />
+                <q-btn no-caps rounded flat dense icon="delete" color="negative" :label="$t('common.delete')"
+                  :disable="!isOnline" @click="confirmRemoveItem(props.row)" />
+              </q-card-actions>
+            </q-card>
+          </div>
+        </template>
       </q-table>
     </q-card>
 
@@ -133,11 +158,11 @@
         <q-card-section>
           <q-form ref="addFormRef" class="column q-gutter-sm">
             <q-input v-model="addForm.name" :label="$t('kitDetail.itemName') + ' *'" outlined dense
-              :rules="[(v) => !!v || 'Required']" />
+              :rules="requiredRules" />
             <q-input v-model="addForm.category" :label="$t('kitDetail.category')" outlined dense />
             <q-input v-model="addForm.unit" :label="$t('kitDetail.unit')" outlined dense />
             <q-input v-model.number="addForm.quantity" :label="$t('kitDetail.quantity') + ' *'" type="number"
-              outlined dense :rules="[(v) => v >= 0 || 'Must be ≥ 0']" />
+              outlined dense :rules="nonNegativeRules" />
             <q-input v-model="addForm.expirationDate" :label="$t('kitDetail.expirationDate')"
               outlined dense type="date" stack-label />
             <q-input v-model="addForm.locationInKit" :label="$t('kitDetail.locationInKit')" outlined dense />
@@ -163,11 +188,11 @@
         <q-card-section>
           <q-form ref="editFormRef" class="column q-gutter-sm">
             <q-input v-model="editForm.name" :label="$t('kitDetail.itemName') + ' *'" outlined dense
-              :rules="[(v) => !!v || 'Required']" />
+              :rules="requiredRules" />
             <q-input v-model="editForm.category" :label="$t('kitDetail.category')" outlined dense />
             <q-input v-model="editForm.unit" :label="$t('kitDetail.unit')" outlined dense />
             <q-input v-model.number="editForm.quantity" :label="$t('kitDetail.quantity')" type="number"
-              outlined dense :rules="[(v) => v >= 0 || 'Must be ≥ 0']" />
+              outlined dense :rules="nonNegativeRules" />
             <q-input v-model="editForm.expirationDate" :label="$t('kitDetail.expirationDate')"
               outlined dense type="date" stack-label clearable />
             <q-input v-model="editForm.locationInKit" :label="$t('kitDetail.locationInKit')" outlined dense />
@@ -194,22 +219,22 @@
         <!-- Step 1: paste / upload -->
         <q-card-section v-if="importStep === 1">
           <div class="text-caption text-grey-7 q-mb-sm">
-            Paste tab-separated or comma-separated data. Expected columns (in order):<br>
-            <strong>Name, Quantity, Location, Category, Expiration Date (M/D/YYYY or YYYY-MM-DD)</strong>
+            {{ $t('kitDetail.importInstructions') }}<br>
+            <strong>{{ $t('kitDetail.importColumns') }}</strong>
           </div>
           <q-input
             v-model="importRaw"
             type="textarea"
             outlined dense
-            label="Paste CSV / TSV rows here"
+            :label="$t('kitDetail.importPasteLabel')"
             :rows="10"
-            placeholder="Surgical Mask	50	Cabinet A	PPE	12/31/2026"
+            :placeholder="$t('kitDetail.importPlaceholder')"
           />
           <div class="row items-center q-mt-sm q-gutter-sm">
-            <span class="text-caption text-grey-6">or upload a file:</span>
+            <span class="text-caption text-grey-6">{{ $t('kitDetail.orUploadFile') }}</span>
             <input ref="fileInputRef" type="file" accept=".csv,.tsv,.txt" style="display:none"
               @change="onFileSelected" />
-            <q-btn no-caps rounded flat dense size="sm" icon="attach_file" label="Choose file"
+            <q-btn no-caps rounded flat dense size="sm" icon="attach_file" :label="$t('kitDetail.chooseFile')"
               @click="(fileInputRef as HTMLInputElement)?.click()" />
           </div>
         </q-card-section>
@@ -217,17 +242,17 @@
         <!-- Step 2: preview parsed rows -->
         <q-card-section v-if="importStep === 2">
           <div class="text-caption text-grey-7 q-mb-sm">
-            {{ importRows.length }} row(s) parsed. Review before importing.
+            {{ $t('kitDetail.rowsParsed', { n: importRows.length }) }}
           </div>
           <q-markup-table dense flat bordered separator="cell" style="max-height:360px;overflow:auto">
             <thead>
               <tr :class="$q.dark.isActive ? 'bg-grey-9' : 'bg-grey-2'">
                 <th class="text-left">#</th>
-                <th class="text-left">Name</th>
-                <th>Qty</th>
-                <th class="text-left">Location</th>
-                <th class="text-left">Category</th>
-                <th class="text-left">Expiry</th>
+                <th class="text-left">{{ $t('kitDetail.itemName') }}</th>
+                <th>{{ $t('kitDetail.quantity') }}</th>
+                <th class="text-left">{{ $t('common.location') }}</th>
+                <th class="text-left">{{ $t('kitDetail.category') }}</th>
+                <th class="text-left">{{ $t('kitDetail.expirationDate') }}</th>
                 <th></th>
               </tr>
             </thead>
@@ -249,22 +274,22 @@
             </tbody>
           </q-markup-table>
           <div v-if="importErrors > 0" class="text-caption text-negative q-mt-xs">
-            {{ importErrors }} row(s) have errors and will be skipped.
+            {{ $t('kitDetail.rowsWithErrors', { n: importErrors }) }}
           </div>
         </q-card-section>
 
         <!-- Step 3: progress -->
         <q-card-section v-if="importStep === 3">
-          <div class="text-subtitle2 q-mb-sm">Importing {{ importProgress }} / {{ importTotal }}…</div>
+          <div class="text-subtitle2 q-mb-sm">{{ $t('kitDetail.importingProgress', { progress: importProgress, total: importTotal }) }}</div>
           <q-linear-progress :value="importTotal ? importProgress / importTotal : 0" color="primary" rounded />
         </q-card-section>
 
         <q-card-actions align="right">
           <q-btn no-caps rounded flat :label="$t('common.cancel')" @click="resetImport" v-close-popup />
-          <q-btn no-caps rounded v-if="importStep === 1" unelevated color="primary" label="Parse"
+          <q-btn no-caps rounded v-if="importStep === 1" unelevated color="primary" :label="$t('kitDetail.parse')"
             :disable="!importRaw.trim()" @click="parseImport" />
-          <q-btn no-caps rounded v-if="importStep === 2" flat label="Back" @click="importStep = 1" />
-          <q-btn no-caps rounded v-if="importStep === 2" unelevated color="primary" label="Import"
+          <q-btn no-caps rounded v-if="importStep === 2" flat :label="$t('common.back')" @click="importStep = 1" />
+          <q-btn no-caps rounded v-if="importStep === 2" unelevated color="primary" :label="$t('kitDetail.importCsv')"
             :disable="importRows.filter(r => !r._error).length === 0"
             @click="runImport" />
         </q-card-actions>
@@ -289,10 +314,14 @@ import { useAuthStore } from 'stores/auth.store';
 import ExpiryBadge from 'components/ExpiryBadge.vue';
 import BomPreviewDialog from 'components/BomPreviewDialog.vue';
 import { buildBomHtml } from 'src/composables/useKitPdf';
+import { useFormValidation } from 'src/composables/useFormValidation';
 
 const { t } = useI18n();
+const validation = useFormValidation(t);
 const authStore = useAuthStore();
 const { isOnline } = useOnline();
+const requiredRules = [validation.required('validation.required')];
+const nonNegativeRules = [validation.nonNegative()];
 
 const route = useRoute();
 const $q = useQuasar();
@@ -547,8 +576,8 @@ function parseImport() {
     const expirationDate = parseDateField(expiryRaw ?? '');
 
     let _error: string | undefined;
-    if (!name) _error = 'Name is required';
-    else if (isNaN(quantity) || quantity < 0) _error = 'Invalid quantity';
+    if (!name) _error = t('validation.required');
+    else if (isNaN(quantity) || quantity < 0) _error = t('validation.invalidQuantity');
 
     const row: ImportRow = { name, quantity: isNaN(quantity) ? 0 : quantity };
     if (locationInKit)  row.locationInKit  = locationInKit;
@@ -585,8 +614,8 @@ async function runImport() {
   importDialogOpen.value = false;
   resetImport();
   void loadKit();
-  if (failed > 0) notify.error(null, `${failed} item(s) failed to import`);
-  else notify.success(`${valid.length} item(s) imported successfully`);
+  if (failed > 0) notify.error(null, t('kitDetail.importFailedCount', { n: failed }));
+  else notify.success(t('kitDetail.importSuccessCount', { n: valid.length }));
 }
 </script>
 
