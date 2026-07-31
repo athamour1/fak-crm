@@ -1,5 +1,5 @@
 <template>
-  <q-page class="inspection-page column no-wrap">
+  <q-page class="inspection-page column no-wrap ot-page-shell">
 
     <!-- ══ PINNED TOP ══════════════════════════════════════════════════════════ -->
     <div class="inspection-top q-px-md q-pt-md">
@@ -13,7 +13,7 @@
           <div class="text-caption text-grey-6" v-if="kit">
             <q-icon name="location_on" size="14px" />
             {{ kit.location || $t('kits.noLocation') }}
-            &nbsp;·&nbsp;{{ kit.kitItems.length }} item(s)
+              &nbsp;·&nbsp;{{ $t('inspections.itemsCount', { n: kit.kitItems.length }) }}
           </div>
         </div>
       </div>
@@ -21,11 +21,10 @@
       <!-- ── Expiry warning banner ─────────────────────────────────────────── -->
       <q-banner
         v-if="!loading && expiredItemCount > 0"
-        :class="[$q.dark.isActive ? 'bg-red-9 text-red-2' : 'bg-red-1 text-red-9', 'q-mb-sm']"
+        :class="[$q.dark.isActive ? 'bg-red-9 text-red-2' : 'bg-red-1 text-red-9', 'ot-state-banner q-mb-sm']"
       >
         <template #avatar><q-icon name="dangerous" /></template>
-        <strong>{{ expiredItemCount }}</strong> item{{ expiredItemCount > 1 ? 's' : '' }} in this kit
-        {{ expiredItemCount > 1 ? 'are' : 'is' }} expired — please replace before use.
+        <strong>{{ expiredItemCount }}</strong> {{ $t('inspections.expiredInKit', { n: expiredItemCount }) }}
       </q-banner>
 
       <!-- ── Progress bar ───────────────────────────────────────────────────── -->
@@ -62,9 +61,9 @@
             v-model="filter"
             spread no-caps unelevated dense class="col"
             :options="[
-              { label: 'All', value: 'all' },
-              { label: 'Pending', value: 'pending' },
-              { label: 'Expired', value: 'expired' },
+              { label: $t('common.all'), value: 'all' },
+              { label: $t('inspections.pending'), value: 'pending' },
+              { label: $t('dashboard.expired'), value: 'expired' },
             ]"
             color="grey-4"
             text-color="dark"
@@ -90,8 +89,8 @@
       </div>
 
       <div v-else class="q-gutter-md q-pb-md">
-        <div v-if="filteredItems.length === 0" class="text-grey-6 text-center q-py-lg">
-          No items match your search.
+        <div v-if="filteredItems.length === 0" class="ot-empty-state q-my-md">
+          {{ $t('inspections.noItemsMatch') }}
         </div>
 
         <q-card
@@ -125,7 +124,7 @@
               </span>
               <span v-if="item.previousExpiry">
                 <q-icon name="event" size="12px" />
-                Previous expiry: <strong>{{ formatDate(item.previousExpiry) }}</strong>
+                {{ $t('inspections.previousExpiry') }}: <strong>{{ formatDate(item.previousExpiry) }}</strong>
               </span>
             </div>
           </q-card-section>
@@ -139,7 +138,7 @@
                   v-model.number="item.quantityFound"
                   :label="$t('inspections.quantityFound')" type="number"
                   outlined dense min="0"
-                  :rules="[(v) => v >= 0 || 'Must be ≥ 0']"
+                  :rules="nonNegativeRules"
                   @update:model-value="markChecked(item)"
                 >
                   <template #prepend><q-icon name="numbers" /></template>
@@ -172,7 +171,20 @@
 
     <!-- ══ PINNED BOTTOM ═══════════════════════════════════════════════════════ -->
     <div v-if="!loading && kit" class="inspection-bottom q-px-md q-pb-md">
-      <q-separator class="q-mb-md" />
+      <StickyActionBar class="q-mb-md">
+        <template #left>
+          <q-btn no-caps rounded flat :label="$t('common.cancel')" :to="backRoute" />
+        </template>
+        <template #right>
+          <q-btn no-caps rounded
+            unelevated color="primary" size="md"
+            icon="send" :label="$t('inspections.submitInspection')"
+            :loading="submitting"
+            :disable="!items.length"
+            @click="submitInspection"
+          />
+        </template>
+      </StickyActionBar>
       <q-input
         v-model="overallNotes"
         :label="$t('inspections.overallNotes')"
@@ -184,17 +196,6 @@
       >
         <template #prepend><q-icon name="edit_note" /></template>
       </q-input>
-      <div class="row items-center">
-        <q-btn no-caps rounded flat :label="$t('common.cancel')" :to="backRoute" />
-        <q-space />
-        <q-btn no-caps rounded
-          unelevated color="primary" size="md"
-          icon="send" :label="$t('inspections.submitInspection')"
-          :loading="submitting"
-          :disable="!items.length"
-          @click="submitInspection"
-        />
-      </div>
     </div>
 
     <!-- ── Success overlay ─────────────────────────────────────────────────────── -->
@@ -208,7 +209,7 @@
             {{ $t('offline.queuedSubmission') }}
           </template>
           <template v-else>
-            Your inspection for <strong>{{ kit?.name }}</strong> has been saved.
+            {{ $t('inspections.savedForKit', { name: kit?.name }) }}
           </template>
         </div>
         <q-btn no-caps rounded unelevated color="primary" :label="$t('common.backToDashboard')" :to="backRoute" />
@@ -227,11 +228,15 @@ import { kitsApi, inspectionsApi, type Kit } from 'src/services/api';
 import { useNotify } from 'src/composables/useNotify';
 import { useOnline } from 'src/composables/useOnline';
 import { useSyncQueue } from 'src/stores/sync-queue.store';
+import StickyActionBar from 'components/StickyActionBar.vue';
+import { useFormValidation } from 'src/composables/useFormValidation';
 
 const { t } = useI18n();
+const validation = useFormValidation(t);
 const $q = useQuasar();
 const { isOnline } = useOnline();
 const syncQueue = useSyncQueue();
+const nonNegativeRules = [validation.nonNegative()];
 
 const route = useRoute();
 const notify = useNotify();
@@ -392,24 +397,24 @@ onMounted(async () => {
 }
 
 .item-card {
-  border-radius: 10px;
+  border-radius: var(--ot-radius-sm);
   transition: border-color 0.2s;
 }
 
 .item-card--done {
-  border-color: #21ba45 !important;
-  background: #f9fff9;
+  border-color: var(--ot-color-success) !important;
+  background: #f6fff8;
 }
 .item-card--expired {
-  border-color: #c10015 !important;
+  border-color: var(--ot-color-danger) !important;
   background: #fff5f5;
 }
 .body--dark .item-card--done {
-  border-color: #21ba45 !important;
+  border-color: var(--ot-color-success) !important;
   background: #0a1f0a;
 }
 .body--dark .item-card--expired {
-  border-color: #c10015 !important;
+  border-color: var(--ot-color-danger) !important;
   background: #1f0a0a;
 }
 </style>
