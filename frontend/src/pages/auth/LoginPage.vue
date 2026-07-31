@@ -1,9 +1,10 @@
 <template>
-  <div class="login-page row items-center justify-center">
+  <div class="login-page row items-center justify-center q-pa-md">
     <!-- Dark mode toggle — top right corner -->
     <q-btn
       flat round dense
       :icon="$q.dark.isActive ? 'light_mode' : 'dark_mode'"
+      :aria-label="$q.dark.isActive ? $t('theme.lightMode') : $t('theme.darkMode')"
       class="dark-toggle text-white"
       @click="toggleDark"
     >
@@ -14,13 +15,13 @@
       <!-- Logo / branding -->
       <q-card-section class="text-center q-pb-sm">
         <q-icon name="medical_services" size="56px" color="primary" />
-        <div class="text-h5 text-weight-bold q-mt-sm">OuchTracker</div>
+        <h1 class="text-h5 text-weight-bold q-mt-sm q-mb-none">{{ $t('app.name') }}</h1>
         <div class="text-caption text-grey-6">{{ $t('app.subtitle') }}</div>
       </q-card-section>
 
       <!-- Login form -->
       <q-card-section class="q-pt-none">
-        <q-form @submit="handleLogin" class="login-form">
+        <q-form @submit="handleLogin" class="login-form ot-form-stack">
           <q-input
             v-model="email"
             type="email"
@@ -28,10 +29,7 @@
             outlined
             dense
             autocomplete="email"
-            :rules="[
-              (v) => !!v || 'Email is required',
-              (v) => /.+@.+\..+/.test(v) || 'Enter a valid email',
-            ]"
+            :rules="emailRules"
           >
             <template #prepend>
               <q-icon name="email" />
@@ -45,7 +43,7 @@
             outlined
             dense
             autocomplete="current-password"
-            :rules="[(v) => !!v || 'Password is required']"
+            :rules="passwordRules"
           >
             <template #prepend>
               <q-icon name="lock" />
@@ -71,7 +69,7 @@
           <q-banner
             v-if="!isOnline"
             dense
-            class="bg-orange-2 text-orange-9 text-caption"
+            class="ot-state-banner bg-orange-2 text-orange-9 text-caption"
           >
             <template #avatar><q-icon name="cloud_off" /></template>
             {{ $t('offline.banner') }}
@@ -81,7 +79,7 @@
           <q-banner
             v-if="loginError"
             dense
-            class="bg-negative text-white text-caption"
+            class="ot-state-banner bg-negative text-white text-caption"
           >
             <template #avatar>
               <q-icon name="error_outline" />
@@ -96,6 +94,7 @@
             class="full-width"
             unelevated
             size="md"
+            :disable="!isOnline"
             :loading="authStore.loading"
           />
         </q-form>
@@ -116,11 +115,16 @@ import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from 'stores/auth.store';
 import { useOnline } from 'src/composables/useOnline';
+import { useFormValidation } from 'src/composables/useFormValidation';
 
 const { t } = useI18n();
 const $q = useQuasar();
 const { isOnline } = useOnline();
 const appVersion = process.env.APP_VERSION;
+const validation = useFormValidation(t);
+
+const emailRules = validation.email('auth.emailRequired', 'auth.emailInvalid');
+const passwordRules = [validation.required('auth.passwordRequired')];
 
 function toggleDark() {
   $q.dark.toggle();
@@ -157,7 +161,9 @@ async function handleLogin() {
 <style scoped lang="css">
 .login-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #c0645e 0%, #7a2e2e 100%);
+  background:
+    radial-gradient(circle at 12% 14%, rgba(255, 255, 255, 0.22), transparent 34%),
+    linear-gradient(140deg, #c0645e 0%, #8c3e3e 55%, #632424 100%);
   position: relative;
 }
 
@@ -170,12 +176,19 @@ async function handleLogin() {
 .login-card {
   width: 100%;
   max-width: 420px;
-  border-radius: 16px;
+  border-radius: var(--ot-radius-lg);
+  box-shadow: var(--ot-shadow-soft);
+  backdrop-filter: blur(2px);
 }
 
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+}
+
+@media (max-width: 599px) {
+  .login-card {
+    max-width: 100%;
+  }
 }
 </style>

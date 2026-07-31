@@ -21,7 +21,7 @@
               v-model="infoForm.fullName"
               :label="$t('profile.fullName')"
               outlined dense
-              :rules="[(v) => !!v || $t('profile.nameRequired')]"
+              :rules="nameRules"
             >
               <template #prepend><q-icon name="badge" /></template>
             </q-input>
@@ -31,7 +31,7 @@
               :label="$t('profile.emailAddress')"
               type="email"
               outlined dense
-              :rules="[(v) => !!v || $t('profile.emailRequired'), (v) => /.+@.+\..+/.test(v) || $t('auth.emailInvalid')]"
+              :rules="emailRules"
             >
               <template #prepend><q-icon name="email" /></template>
             </q-input>
@@ -64,7 +64,7 @@
               :label="$t('profile.currentPassword')"
               :type="showCurrent ? 'text' : 'password'"
               outlined dense
-              :rules="[(v) => !!v || $t('profile.currentPasswordRequired')]"
+              :rules="currentPasswordRules"
             >
               <template #prepend><q-icon name="lock_open" /></template>
               <template #append>
@@ -81,7 +81,7 @@
               :label="$t('profile.newPassword')"
               :type="showNew ? 'text' : 'password'"
               outlined dense
-              :rules="[(v) => !!v || $t('profile.newPasswordRequired'), (v) => v.length >= 6 || 'Min 6 characters']"
+              :rules="newPasswordRules"
             >
               <template #prepend><q-icon name="lock" /></template>
               <template #append>
@@ -162,11 +162,21 @@ import { useNotify } from 'src/composables/useNotify';
 import { useOnline } from 'src/composables/useOnline';
 import { LOCALES, type Locale } from 'src/i18n';
 import { i18n } from 'src/boot/i18n';
+import { useFormValidation } from 'src/composables/useFormValidation';
 
 const { t } = useI18n();
 const authStore = useAuthStore();
 const notify = useNotify();
 const { isOnline } = useOnline();
+const validation = useFormValidation(t);
+
+const nameRules = [validation.required('profile.nameRequired')];
+const emailRules = validation.email('profile.emailRequired', 'auth.emailInvalid');
+const currentPasswordRules = [validation.required('profile.currentPasswordRequired')];
+const newPasswordRules = [
+  validation.required('profile.newPasswordRequired'),
+  validation.minLength(6),
+];
 
 const localeOptions = LOCALES.map((l) => ({ label: `${l.flag}  ${l.label}`, value: l.value }));
 
