@@ -3,16 +3,17 @@
     <div class="row items-center q-mb-md">
       <div class="text-h5"><q-icon name="fact_check" class="q-mr-sm" />{{ $t('inspections.title') }}</div>
       <q-space />
-      <q-select
-        v-model="filterKitId"
-        :options="kitOptions"
-        label="Filter by Kit"
-        dense outlined clearable
-        emit-value map-options
-        style="min-width: 220px"
-        @update:model-value="loadLogs"
-      />
     </div>
+
+    <UnifiedFilterBar
+      v-model:search="search"
+      v-model:kit-id="filterKitId"
+      :kit-options="kitOptions"
+      :search-placeholder="$t('common.search')"
+      :kit-label="$t('kits.filterByKit')"
+      class="q-mb-md"
+      @update:kit-id="loadLogs"
+    />
 
     <!-- Skeleton -->
     <q-card v-if="loading" flat bordered>
@@ -28,8 +29,9 @@
 
     <q-card v-else flat bordered style="overflow: hidden;">
       <q-table
-        :rows="logs" :columns="columns" row-key="id"
+        :rows="filteredLogs" :columns="columns" row-key="id"
         flat :pagination="{ rowsPerPage: 20 }"
+        :grid="$q.screen.lt.md"
       >
         <template #body-cell-createdAt="props">
           <q-td :props="props">{{ formatDate(props.value) }}</q-td>
@@ -72,10 +74,10 @@
             <q-td colspan="100%" style="padding: 0;">
               <div class="q-pa-sm" style="max-height: 260px; overflow-y: auto;">
                 <div v-if="props.row.notes" class="q-mb-sm text-caption text-grey-7">
-                  <strong>Inspector notes:</strong> {{ props.row.notes }}
+                  <strong>{{ $t('inspections.inspectorNotes') }}:</strong> {{ props.row.notes }}
                 </div>
                 <div class="text-subtitle2 q-mb-sm text-grey-7">
-                  Items inspected — {{ props.row.items.length }} item(s)
+                  {{ $t('inspections.itemsInspected', { n: props.row.items.length }) }}
                 </div>
                 <q-markup-table dense flat bordered separator="cell">
                   <thead>
@@ -102,6 +104,21 @@
           </q-tr>
         </template>
 
+        <template #item="props">
+          <div class="q-pa-xs col-12">
+            <q-card flat bordered>
+              <q-card-section class="q-pb-xs">
+                <div class="text-subtitle2 text-weight-medium">{{ props.row.kit.name }}</div>
+                <div class="text-caption text-grey-6">{{ formatDate(props.row.createdAt) }}</div>
+              </q-card-section>
+              <q-card-section class="q-pt-none q-pb-sm">
+                <div class="text-caption">{{ $t('inspections.inspector') }}: <strong>{{ props.row.inspectedBy.fullName }}</strong></div>
+                <div class="text-caption">{{ $t('inspections.itemCount') }}: <strong>{{ props.row.items.length }}</strong></div>
+              </q-card-section>
+            </q-card>
+          </div>
+        </template>
+
         <template #no-data>
           <div class="full-width column flex-center q-pa-xl text-grey-5">
             <q-icon name="fact_check" size="48px" class="q-mb-sm" />
@@ -114,7 +131,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useQuasar, date, type QTableColumn } from 'quasar';
 import { useI18n } from 'vue-i18n';
 
@@ -122,12 +139,24 @@ const { t } = useI18n();
 const $q = useQuasar();
 import { inspectionsApi, kitsApi, type InspectionLog, type Kit } from 'src/services/api';
 import { useNotify } from 'src/composables/useNotify';
+import UnifiedFilterBar from 'components/UnifiedFilterBar.vue';
 
 const notify = useNotify();
 const logs = ref<InspectionLog[]>([]);
 const loading = ref(false);
 const filterKitId = ref<string | undefined>(undefined);
 const kitOptions = ref<{ label: string; value: string }[]>([]);
+const search = ref('');
+
+const filteredLogs = computed(() => {
+  const query = search.value.trim().toLowerCase();
+  if (!query) return logs.value;
+
+  return logs.value.filter((log) =>
+    log.kit.name.toLowerCase().includes(query) ||
+    log.inspectedBy.fullName.toLowerCase().includes(query),
+  );
+});
 
 function formatDate(iso: string) {
   return date.formatDate(iso, 'DD MMM YYYY, HH:mm');

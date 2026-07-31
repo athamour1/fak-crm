@@ -3,16 +3,17 @@
     <div class="row items-center q-mb-md">
       <div class="text-h5"><q-icon name="warning" class="q-mr-sm" color="negative" />{{ $t('incidents.title') }}</div>
       <q-space />
-      <q-select
-        v-model="filterKitId"
-        :options="kitOptions"
-        label="Filter by Kit"
-        dense outlined clearable
-        emit-value map-options
-        style="min-width: 220px"
-        @update:model-value="loadReports"
-      />
     </div>
+
+    <UnifiedFilterBar
+      v-model:search="search"
+      v-model:kit-id="filterKitId"
+      :kit-options="kitOptions"
+      :search-placeholder="$t('common.search')"
+      :kit-label="$t('kits.filterByKit')"
+      class="q-mb-md"
+      @update:kit-id="loadReports"
+    />
 
     <!-- Skeleton -->
     <q-card v-if="loading" flat bordered>
@@ -28,8 +29,9 @@
 
     <q-card v-else flat bordered style="overflow: hidden;">
       <q-table
-        :rows="reports" :columns="columns" row-key="id"
+        :rows="filteredReports" :columns="columns" row-key="id"
         flat :pagination="{ rowsPerPage: 20 }"
+        :grid="$q.screen.lt.md"
       >
         <template #body="props">
           <q-tr :props="props">
@@ -74,6 +76,21 @@
           </q-tr>
         </template>
 
+        <template #item="props">
+          <div class="q-pa-xs col-12">
+            <q-card flat bordered>
+              <q-card-section class="q-pb-xs">
+                <div class="text-subtitle2 text-weight-medium">{{ props.row.kit.name }}</div>
+                <div class="text-caption text-grey-6">{{ formatDate(props.row.createdAt) }}</div>
+              </q-card-section>
+              <q-card-section class="q-pt-none q-pb-sm">
+                <div class="text-caption">{{ $t('incidents.reporter') }}: <strong>{{ props.row.reportedBy.fullName }}</strong></div>
+                <div class="text-caption">{{ $t('incidents.itemCount') }}: <strong>{{ props.row.items.length }}</strong></div>
+              </q-card-section>
+            </q-card>
+          </div>
+        </template>
+
         <template #no-data>
           <div class="full-width column flex-center q-pa-xl text-grey-5">
             <q-icon name="warning" size="48px" class="q-mb-sm" />
@@ -86,7 +103,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useQuasar, date, type QTableColumn } from 'quasar';
 import { useI18n } from 'vue-i18n';
 
@@ -94,12 +111,24 @@ const { t } = useI18n();
 const $q = useQuasar();
 import { incidentsApi, kitsApi, type IncidentReport, type Kit } from 'src/services/api';
 import { useNotify } from 'src/composables/useNotify';
+import UnifiedFilterBar from 'components/UnifiedFilterBar.vue';
 
 const notify = useNotify();
 const reports = ref<IncidentReport[]>([]);
 const loading = ref(false);
 const filterKitId = ref<string | undefined>(undefined);
 const kitOptions = ref<{ label: string; value: string }[]>([]);
+const search = ref('');
+
+const filteredReports = computed(() => {
+  const query = search.value.trim().toLowerCase();
+  if (!query) return reports.value;
+
+  return reports.value.filter((report) =>
+    report.kit.name.toLowerCase().includes(query) ||
+    report.reportedBy.fullName.toLowerCase().includes(query),
+  );
+});
 
 function formatDate(iso: string) {
   return date.formatDate(iso, 'DD MMM YYYY, HH:mm');
