@@ -1,13 +1,13 @@
 <template>
-  <q-page padding>
-    <div class="row items-center q-mb-md">
+  <q-page padding class="ot-page-shell">
+    <div class="ot-page-header row items-center">
       <div class="text-h5"><q-icon name="medical_services" class="q-mr-sm" />{{ $t('kits.title') }}</div>
       <q-space />
       <q-btn no-caps rounded color="primary" icon="add" :label="$t('kits.newKit')" unelevated
         :disable="!isOnline" @click="openCreate" />
     </div>
 
-    <q-banner v-if="!isOnline" dense class="q-mb-md bg-orange-1 text-orange-9">
+    <q-banner v-if="!isOnline" dense class="ot-state-banner q-mb-md bg-orange-1 text-orange-9">
       <template #avatar><q-icon name="cloud_off" /></template>
       {{ $t('offline.cachedData') }}
     </q-banner>
@@ -27,15 +27,43 @@
     </q-card>
 
     <q-card v-else flat bordered>
+      <q-card-section>
+        <UnifiedFilterBar
+          v-model:search="filter"
+          :search-placeholder="$t('common.search')"
+          :kit-label="$t('kits.filterByKit')"
+          :show-kit-filter="false"
+        />
+      </q-card-section>
+
       <q-table
         :rows="kits" :columns="columns" row-key="id"
         flat :pagination="{ rowsPerPage: 15 }"
         :filter="filter"
+        :grid="$q.screen.lt.md"
       >
-        <template #top-right>
-          <q-input v-model="filter" dense outlined :placeholder="$t('common.search')" debounce="300">
-            <template #append><q-icon name="search" /></template>
-          </q-input>
+        <template #item="props">
+          <div class="q-pa-xs col-12 col-sm-6">
+            <q-card flat bordered>
+              <q-card-section class="q-pb-sm">
+                <div class="text-subtitle2 text-weight-medium">{{ props.row.name }}</div>
+                <div class="text-caption text-grey-6">{{ props.row.location || $t('kits.noLocation') }}</div>
+              </q-card-section>
+              <q-separator />
+              <q-card-actions align="right">
+                <q-btn no-caps rounded flat dense icon="open_in_new" color="primary" :label="$t('common.view')"
+                  :to="`/admin/kits/${props.row.id}`" />
+              </q-card-actions>
+            </q-card>
+          </div>
+        </template>
+
+        <template #no-data>
+          <div class="full-width ot-empty-state q-ma-md">
+            <q-icon name="inventory_2" size="28px" class="q-mb-sm" />
+            <div class="text-subtitle2">{{ $t('kits.noKits') }}</div>
+            <div class="text-caption">{{ $t('kits.newKit') }} to get started.</div>
+          </div>
         </template>
 
         <template #body-cell-assignedTo="props">
@@ -61,15 +89,15 @@
           <q-td :props="props" class="q-gutter-xs">
             <q-btn no-caps rounded flat dense round icon="open_in_new" color="primary" size="sm"
               :to="`/admin/kits/${props.row.id}`">
-              <q-tooltip>View Details</q-tooltip>
+              <q-tooltip>{{ $t('kits.viewDetails') }}</q-tooltip>
             </q-btn>
             <q-btn no-caps rounded flat dense round icon="qr_code" color="purple" size="sm"
               @click="openQr(props.row)">
-              <q-tooltip>Show QR Code</q-tooltip>
+              <q-tooltip>{{ $t('kitDetail.qrCode') }}</q-tooltip>
             </q-btn>
             <q-btn no-caps rounded flat dense round icon="person_add" color="teal" size="sm"
               :disable="!isOnline" @click="openAssign(props.row)">
-              <q-tooltip>Assign to User</q-tooltip>
+              <q-tooltip>{{ $t('kits.assignToUser') }}</q-tooltip>
             </q-btn>
             <q-btn no-caps rounded flat dense round icon="edit" color="grey-7" size="sm"
               :disable="!isOnline" @click="openEdit(props.row)" />
@@ -91,10 +119,10 @@
         <q-card-section>
           <q-form ref="kitFormRef" class="q-gutter-sm">
             <q-input v-model="kitForm.name" :label="$t('kits.kitName')" outlined dense
-              :rules="[(v) => !!v || 'Required']" />
+              :rules="kitNameRules" />
             <q-input v-model="kitForm.description" :label="$t('kits.description')" outlined dense type="textarea" autogrow />
             <q-input v-model="kitForm.location" :label="$t('common.location')" outlined dense
-              hint="e.g. Building A – Floor 2, Reception Desk" />
+              :hint="$t('kits.locationHint')" />
             <q-toggle v-if="editTarget" v-model="kitForm.isActive" :label="$t('common.active')" />
           </q-form>
         </q-card-section>
@@ -128,7 +156,7 @@
             outlined dense
             emit-value map-options
             multiple use-chips
-            hint="Select one or more users. Clear all to unassign."
+            :hint="$t('kits.assignHint')"
           />
         </q-card-section>
         <q-card-actions align="right">
@@ -148,11 +176,14 @@ import { kitsApi, usersApi, type Kit, type User } from 'src/services/api';
 import { useNotify } from 'src/composables/useNotify';
 import { useOnline } from 'src/composables/useOnline';
 import KitQrDialog from 'components/KitQrDialog.vue';
+import UnifiedFilterBar from 'components/UnifiedFilterBar.vue';
+import { useFormValidation } from 'src/composables/useFormValidation';
 
 const { t } = useI18n();
 const $q = useQuasar();
 const notify = useNotify();
 const { isOnline } = useOnline();
+const validation = useFormValidation(t);
 const kits = ref<Kit[]>([]);
 const users = ref<User[]>([]);
 const loading = ref(false);
@@ -164,6 +195,7 @@ const kitDialogOpen = ref(false);
 const editTarget = ref<Kit | null>(null);
 const kitFormRef = ref();
 const kitForm = reactive({ name: '', description: '', location: '', isActive: true });
+const kitNameRules = [validation.required('validation.required')];
 
 // QR state
 const qrDialogOpen = ref(false);
