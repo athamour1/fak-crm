@@ -4,14 +4,15 @@
     <!-- ── Top header ───────────────────────────────────────────────────────── -->
     <q-header class="bg-primary text-white">
       <q-toolbar>
-        <q-btn no-caps rounded flat dense round icon="menu" aria-label="Menu" @click="toggleDrawer" />
+        <q-btn no-caps rounded flat dense round icon="menu" :aria-label="$t('nav.menu')" @click="toggleDrawer" />
         <q-toolbar-title class="row items-center gap-sm">
           <q-icon name="medical_services" size="22px" class="q-mr-xs" />
-          OuchTracker
+          {{ $t('app.name') }}
         </q-toolbar-title>
         <q-btn no-caps rounded
           flat dense round
           :icon="$q.dark.isActive ? 'light_mode' : 'dark_mode'"
+          :aria-label="$q.dark.isActive ? $t('theme.lightMode') : $t('theme.darkMode')"
           @click="toggleDark"
         >
           <q-tooltip>{{ $q.dark.isActive ? $t('theme.lightMode') : $t('theme.darkMode') }}</q-tooltip>
@@ -20,7 +21,7 @@
         <!-- Offline badge -->
         <q-badge v-if="!isOnline" color="grey-7" class="q-mr-sm">
           <q-icon name="cloud_off" size="12px" class="q-mr-xs" />
-          offline
+          {{ $t('offline.offlineShort') }}
           <q-badge v-if="syncQueue.pendingCount > 0" floating color="warning" :label="syncQueue.pendingCount" />
         </q-badge>
 
@@ -29,6 +30,7 @@
           v-if="isInstallable"
           flat dense round
           icon="install_mobile"
+          :aria-label="$t('pwa.installApp')"
           @click="handleInstall"
         >
           <q-tooltip>{{ $t('pwa.installApp') }}</q-tooltip>
@@ -41,7 +43,7 @@
           <q-icon name="install_mobile" size="20px" class="q-mr-sm" />
           <div class="col text-body2">{{ $t('pwa.installPrompt') }}</div>
           <q-btn no-caps rounded flat dense :label="$t('pwa.install')" color="white" class="q-mr-xs" @click="handleInstall" />
-          <q-btn no-caps rounded flat dense round icon="close" color="white" @click="dismissBanner" />
+          <q-btn no-caps rounded flat dense round icon="close" color="white" :aria-label="$t('pwa.dismissInstallBanner')" @click="dismissBanner" />
         </div>
       </transition>
     </q-header>
@@ -116,7 +118,7 @@
               dense size="sm"
               :color="authStore.isAdmin ? 'orange' : 'teal'"
               text-color="white"
-              :label="authStore.isAdmin ? 'Admin' : 'Checker'"
+              :label="authStore.isAdmin ? $t('users.roleAdmin') : $t('users.roleChecker')"
               class="q-ma-none"
             />
           </div>
