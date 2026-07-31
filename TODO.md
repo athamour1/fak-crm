@@ -1,5 +1,10 @@
 # TODO List
 
+- [ ] Security hardening (backend)
+  - [ ] Remove insecure JWT fallback secret (fail startup if JWT_SECRET is missing)
+  - [ ] Fix IDOR risk on inspection details endpoint (only admin or owner can read GET /inspections/:id)
+  - [ ] Add DTO validation for auth endpoints (login/refresh request bodies)
+
 - [ ] Add contact points for notifications(new reports, new incidents, and items near experiation or passed experietion)
   - [ ] Telegram
   - [ ] Viber
@@ -21,7 +26,7 @@
 - [X] Add install app button and promt for pwa
 - [X] rename the app to OuchTracker
 - [X] change the favicon just to a red cross on pwa and on docs
-- [X] add stay loged in togle switch on login and logic localstorage refresh token 
+- [X] add stay loged in togle switch on login and logic localstorage refresh token
 - [X] add i18n
 - [X] move profile settings abobe the user on on drawer
 - [X] add offline capabilities for installed pwa and sync when online
