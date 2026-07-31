@@ -5,6 +5,7 @@ export default {
     subtitle: 'Injury & Kit Tracker',
   },
   nav: {
+    menu: 'Menu',
     general: 'General',
     dashboard: 'Dashboard',
     administration: 'Administration',
@@ -27,6 +28,7 @@ export default {
     installPrompt: 'Install OuchTracker for quick offline access',
     install: 'Install',
     installApp: 'Install App',
+    dismissInstallBanner: 'Dismiss install banner',
   },
 
   // ── Common ──────────────────────────────────────────────────────────────────
@@ -46,6 +48,7 @@ export default {
     actions: 'Actions',
     yes: 'Yes',
     no: 'No',
+    all: 'All',
     active: 'Active',
     inactive: 'Inactive',
     name: 'Name',
@@ -58,7 +61,15 @@ export default {
     viewAll: 'View all',
     backToDashboard: 'Back to Dashboard',
     unassigned: 'Unassigned',
+    view: 'View',
     optional: 'optional',
+  },
+
+  validation: {
+    required: 'This field is required',
+    minLength: 'Must be at least {min} characters',
+    nonNegative: 'Value must be greater than or equal to 0',
+    invalidQuantity: 'Invalid quantity',
   },
 
   // ── Auth ────────────────────────────────────────────────────────────────────
@@ -114,6 +125,10 @@ export default {
     kitDeleted: 'Kit deleted',
     assignCheckers: 'Assign Checkers',
     saveAssign: 'Assign',
+    viewDetails: 'View details',
+    assignToUser: 'Assign to user',
+    locationHint: 'e.g. Building A - Floor 2, Reception Desk',
+    assignHint: 'Select one or more users. Clear all to unassign.',
     noKits: 'No kits found.',
     startInspection: 'Start Inspection',
     importCsv: 'Import CSV',
@@ -150,6 +165,21 @@ export default {
     downloadQr: 'Download QR',
     expiryAlert: '{expired} item expired | {expired} items expired',
     expiryAlertSoon: 'and {soon} expiring soon',
+    expiredItems: '{n} item expired | {n} items expired',
+    andExpiringSoon: 'and {n} expiring soon',
+    expiringWithinDays: '{n} item expiring within {days} days | {n} items expiring within {days} days',
+    importInstructions: 'Paste tab-separated or comma-separated data. Expected columns (in order):',
+    importColumns: 'Name, Quantity, Location, Category, Expiration Date (M/D/YYYY or YYYY-MM-DD)',
+    importPasteLabel: 'Paste CSV / TSV rows here',
+    importPlaceholder: 'Surgical Mask\t50\tCabinet A\tPPE\t12/31/2026',
+    orUploadFile: 'or upload a file:',
+    chooseFile: 'Choose file',
+    rowsParsed: '{n} row(s) parsed. Review before importing.',
+    rowsWithErrors: '{n} row(s) have errors and will be skipped.',
+    importingProgress: 'Importing {progress} / {total}...',
+    parse: 'Parse',
+    importSuccessCount: '{n} item(s) imported successfully',
+    importFailedCount: '{n} item(s) failed to import',
   },
 
   // ── Users ───────────────────────────────────────────────────────────────────
@@ -184,6 +214,14 @@ export default {
     quantityFound: 'Qty Found',
     expirationDate: 'Expiration Date',
     itemNotes: 'Notes',
+    inspectorNotes: 'Inspector notes',
+    itemsInspected: 'Items inspected - {n} item(s)',
+    itemsCount: '{n} item(s)',
+    expiredInKit: '{n} item in this kit is expired - please replace before use. | {n} items in this kit are expired - please replace before use.',
+    pending: 'Pending',
+    noItemsMatch: 'No items match your search.',
+    previousExpiry: 'Previous expiry',
+    savedForKit: 'Your inspection for {name} has been saved.',
     overallNotes: 'Overall Notes',
     confirmSubmit: 'Submit this inspection?',
     previousQty: 'Prev: {n}',
@@ -205,6 +243,10 @@ export default {
     itemNotes: 'Notes',
     addItem: 'Add Item',
     selectItem: 'Select Item',
+    availableQty: 'Available: {n}',
+    noMatchingItems: 'No matching items found.',
+    searchAndAdd: 'Search for items above and add them to the report.',
+    updatedForKit: 'Quantities have been updated for {name}.',
     confirmSubmit: 'Submit this incident report?',
     fileIncident: 'File Incident',
   },
@@ -244,6 +286,7 @@ export default {
 
   // ── Offline ──────────────────────────────────────────────────────────────────
   offline: {
+    offlineShort: 'offline',
     banner: 'You are offline — view data is read-only, submissions will sync when back online.',
     cachedData: 'Showing cached data. Changes are disabled while offline.',
     noCachedData: 'No cached data available. Please visit this page while online first.',
