@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "skills": {
+    "database-security": {
+      "source": "oakoss/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/database-security/SKILL.md",
+      "computedHash": "2dc4e9df239d5dc6fa3d6f8bddd794eadacfbbb98058e860372b317c3ae08804"
+    },
+    "devops": {
+      "source": "mrgoonie/claudekit-skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/devops/SKILL.md",
+      "computedHash": "2ed56674249d57ac49c3f2d6edf63cf10fc4d63aa5dbe3ff05e74cbd4a9fccca"
+    },
+    "devops-cicd": {
+      "source": "miles990/claude-software-skills",
+      "sourceType": "github",
+      "skillPath": "software-engineering/devops-cicd/SKILL.md",
+      "computedHash": "5e6aefebf176e321423861cb36d6379c30159d2941d06f64a1e53d0ea13d8601"
+    },
+    "devops-deployment": {
+      "source": "yonatangross/orchestkit",
+      "sourceType": "github",
+      "skillPath": "plugins/ork/skills/devops-deployment/SKILL.md",
+      "computedHash": "91d2a0ffad09acbe1f632f0a7fb270c31e513e4b9eaa52c38d60f9b098e98c99"
+    },
+    "frontend-design-ui-ux": {
+      "source": "ulpi-io/skills",
+      "sourceType": "github",
+      "skillPath": "frontend-design-ui-ux/SKILL.md",
+      "computedHash": "30f899e46aa0bbfeec9aa29a9016dfff8c58c30fbd1dccf138d826e342028c6b"
+    },
+    "frontend-testing": {
+      "source": "aj-geddes/useful-ai-prompts",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-testing/SKILL.md",
+      "computedHash": "974ab9e40e99335ddb8cb678e699f13d56ab0c91e5a744178d1972f67f9b8b62"
+    },
+    "lighthouse-scanner": {
+      "source": "community-access/accessibility-agents",
+      "sourceType": "github",
+      "skillPath": ".github/skills/lighthouse-scanner/SKILL.md",
+      "computedHash": "c3a34b3fd68027b984f055fe428aebcea6d6ab969f73fa718ac1813c8805e7b4"
+    },
+    "nestjs-best-practices": {
+      "source": "xirothedev/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/nestjs-best-practices/SKILL.md",
+      "computedHash": "97f34f89328df63724a95d5cda36420e15ac1bbb1e338be112c37e66a7d6e380"
+    },
+    "quasar-skilld": {
+      "source": "harlan-zw/vue-ecosystem-skills",
+      "sourceType": "github",
+      "skillPath": "skills/quasar-skilld/SKILL.md",
+      "computedHash": "397b49d0e003731e96e207a808baafb6a815d306c9755660c7f2e0c9f97d9958"
+    },
+    "ui-to-vue": {
+      "source": "affaan-m/everything-claude-code",
+      "sourceType": "github",
+      "skillPath": "skills/ui-to-vue/SKILL.md",
+      "computedHash": "0d0d251631c16ed07426cb17b0a79ce0689002c14f1a79f693f62ac27fe4dcd0"
+    },
+    "vitest": {
+      "source": "bobmatnyc/claude-mpm-skills",
+      "sourceType": "github",
+      "skillPath": "toolchains/typescript/testing/vitest/SKILL.md",
+      "computedHash": "ab8286ae8b6b0f216c69a5c7e6e029caac2365e50aafc4b64cc99e33ae6b698f"
+    },
+    "vue-expert": {
+      "source": "jeffallan/claude-skills",
+      "sourceType": "github",
+      "skillPath": "skills/vue-expert/SKILL.md",
+      "computedHash": "7276996f25e0e22316d480d12a51ea8f7441cc9855e79590ed0f5e2a25da4714"
+    }
+  }
+}
