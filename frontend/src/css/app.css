@@ -1,9 +1,62 @@
 /* app global css */
 
-/* ── Drawer-safe scrolling layout ────────────────────────────────────────────
-   The header is position:fixed (Quasar elevated). Prevent the whole document
-   from scrolling; let only q-page-container scroll internally.               */
+:root {
+  --ot-font-brand: 'Manrope', 'Segoe UI', sans-serif;
+  --ot-font-ui: 'Atkinson Hyperlegible', 'Segoe UI', sans-serif;
+  --ot-space-1: 4px;
+  --ot-space-2: 8px;
+  --ot-space-3: 12px;
+  --ot-space-4: 16px;
+  --ot-space-5: 24px;
+  --ot-space-6: 32px;
+  --ot-radius-sm: 8px;
+  --ot-radius-md: 12px;
+  --ot-radius-lg: 18px;
+  --ot-shadow-soft: 0 10px 24px rgba(40, 29, 29, 0.08);
+  --ot-shadow-focus: 0 0 0 3px rgba(177, 77, 77, 0.3);
+  --ot-color-bg: #f5f1ee;
+  --ot-color-surface: #ffffff;
+  --ot-color-surface-muted: #f8f4f2;
+  --ot-color-text: #2e1f1f;
+  --ot-color-text-muted: #705a5a;
+  --ot-color-border: #e8dcda;
+  --ot-color-border-strong: #caabaa;
+  --ot-color-primary: #b14d4d;
+  --ot-color-warning: #a36000;
+  --ot-color-danger: #c10015;
+  --ot-color-success: #2f8a4c;
+}
 
+body {
+  font-family: var(--ot-font-ui);
+  color: var(--ot-color-text);
+  background: radial-gradient(circle at top right, #efe2dd 0%, #f5f1ee 55%, #fff 100%);
+}
+
+.text-h1,
+.text-h2,
+.text-h3,
+.text-h4,
+.text-h5,
+.text-h6 {
+  font-family: var(--ot-font-brand);
+  letter-spacing: 0.01em;
+}
+
+.text-grey-5 {
+  color: #6b5858 !important;
+}
+
+.text-grey-6 {
+  color: #5a4747 !important;
+}
+
+.body--dark .text-grey-5,
+.body--dark .text-grey-6 {
+  color: #d5caca !important;
+}
+
+/* Drawer-safe scrolling layout */
 .q-layout {
   overflow: hidden !important;
 }
@@ -18,16 +71,13 @@
   padding-top: 0 !important;
 }
 
-/* On mobile the drawer is hidden — page fills full width */
 @media (max-width: 700px) {
   .q-page-container {
     left: 0 !important;
   }
 }
 
-
-/* ── Global flat UI (no elevation/shadows) ───────────────────────────────────*/
-
+/* Global card/input/button shape and shared states */
 .q-card,
 .q-toolbar,
 .q-header,
@@ -44,39 +94,109 @@
   box-shadow: none !important;
 }
 
-/* ── Global rounded UI ───────────────────────────────────────────────────────*/
-
-/* Cards */
 .q-card {
-  border-radius: 12px !important;
+  border-radius: var(--ot-radius-md) !important;
+  border-color: var(--ot-color-border) !important;
 }
 
-/* Dialogs */
-.q-dialog__inner>div {
-  border-radius: 16px !important;
+.q-dialog__inner > div {
+  border-radius: var(--ot-radius-lg) !important;
 }
 
-/* Inputs & selects (outlined + filled variants) */
 .q-field--outlined .q-field__control,
 .q-field--filled .q-field__control {
-  border-radius: 8px !important;
+  border-radius: var(--ot-radius-sm) !important;
+  border: 1px solid var(--ot-color-border);
+  background: var(--ot-color-surface);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* Notifications */
-.q-notification {
-  border-radius: 10px !important;
+.q-field--outlined.q-field--focused .q-field__control,
+.q-field--filled.q-field--focused .q-field__control,
+.q-btn:focus-visible,
+.ot-focusable:focus-visible {
+  border-color: var(--ot-color-primary) !important;
+  box-shadow: var(--ot-shadow-focus) !important;
 }
 
-/* Banners */
+.q-field--error .q-field__control {
+  border-color: var(--ot-color-danger) !important;
+}
+
+.q-btn:disabled,
+.q-field--disabled .q-field__control {
+  opacity: 0.72;
+}
+
+.q-btn--unelevated {
+  border-radius: var(--ot-radius-sm) !important;
+  font-weight: 600;
+}
+
+.q-btn--unelevated:hover {
+  filter: brightness(0.96);
+}
+
+.q-notification,
 .q-banner {
-  border-radius: 10px !important;
+  border-radius: var(--ot-radius-sm) !important;
 }
 
-/* ── Dark mode scrollbars ────────────────────────────────────────────────────
-   Chromium-based browsers support ::-webkit-scrollbar customisation.
-   Firefox uses the `scrollbar-color` property.                               */
+/* Reusable layout/state helpers */
+.ot-page-shell {
+  max-width: 920px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.ot-page-header {
+  display: flex;
+  align-items: center;
+  gap: var(--ot-space-3);
+  margin-bottom: var(--ot-space-4);
+}
+
+.ot-form-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ot-space-4);
+}
+
+.ot-state-banner {
+  border: 1px solid var(--ot-color-border-strong);
+  background: var(--ot-color-surface-muted);
+}
+
+.ot-empty-state {
+  border: 1px dashed var(--ot-color-border-strong);
+  border-radius: var(--ot-radius-md);
+  padding: var(--ot-space-5);
+  text-align: center;
+  color: var(--ot-color-text-muted);
+  background: var(--ot-color-surface);
+}
+
+.ot-action-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 50;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--ot-space-3) var(--ot-space-4);
+  border-top: 1px solid var(--ot-color-border);
+  background: color-mix(in srgb, var(--ot-color-surface) 88%, transparent);
+  backdrop-filter: blur(4px);
+}
 
 .body--dark {
+  --ot-color-bg: #151315;
+  --ot-color-surface: #1d1d1d;
+  --ot-color-surface-muted: #252125;
+  --ot-color-text: #ece3e3;
+  --ot-color-text-muted: #c3b1b1;
+  --ot-color-border: #3f3535;
+  --ot-color-border-strong: #5c4c4c;
   scrollbar-color: #555 #1d1d1d;
 }
 
